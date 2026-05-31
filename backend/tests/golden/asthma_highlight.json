@@ -1,0 +1,1486 @@
+{
+  "axes": [
+    {
+      "displayType": "stacked bar",
+      "dtype": "categorical",
+      "name": "group",
+      "x": 27.0
+    },
+    {
+      "displayType": "stacked bar",
+      "dtype": "categorical",
+      "name": "gender",
+      "x": 75.0
+    },
+    {
+      "displayType": "rugplot",
+      "dtype": "numerical",
+      "name": "comorbidities",
+      "x": 123.0
+    }
+  ],
+  "coordinateSystem": {
+    "height": 10.0,
+    "width": 15.0,
+    "xRange": [
+      0.0,
+      150.0
+    ],
+    "yRange": [
+      0.0,
+      100.0
+    ]
+  },
+  "labels": [
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "adult",
+      "va": "center",
+      "x": 27.0,
+      "y": 4.9784971098265896
+    },
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "child",
+      "va": "center",
+      "x": 27.0,
+      "y": 50.20739884393064
+    },
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "adolescent",
+      "va": "center",
+      "x": 27.0,
+      "y": 95.22890173410406
+    },
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "female",
+      "va": "center",
+      "x": 75.0,
+      "y": 5.893179190751445
+    },
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "male",
+      "va": "center",
+      "x": 75.0,
+      "y": 94.21317919075146
+    },
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "0",
+      "va": "center",
+      "x": 123.0,
+      "y": 5.409248554913295
+    },
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "1",
+      "va": "center",
+      "x": 123.0,
+      "y": 18.340070189925683
+    },
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "2",
+      "va": "center",
+      "x": 123.0,
+      "y": 31.27089182493807
+    },
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "3",
+      "va": "center",
+      "x": 123.0,
+      "y": 44.201713459950454
+    },
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "4",
+      "va": "center",
+      "x": 123.0,
+      "y": 57.13253509496285
+    },
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "5",
+      "va": "center",
+      "x": 123.0,
+      "y": 70.06335672997523
+    },
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "7",
+      "va": "center",
+      "x": 123.0,
+      "y": 95.925
+    }
+  ],
+  "marks": [
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "count": 62.0,
+        "kind": "connector",
+        "leftAxis": "group",
+        "leftCategory": "adolescent",
+        "rightAxis": "gender",
+        "rightCategory": "female",
+        "text": "group=adolescent \u2192 gender=female<br>highlighted (gender=female): 62"
+      },
+      "id": "conn:0:group=adolescent>gender=female:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          35.88773797369086,
+          94.68167608820379
+        ],
+        [
+          36.512262026309145,
+          94.89335281353034
+        ],
+        [
+          66.11226202630914,
+          7.5624857615072045
+        ],
+        [
+          65.48773797369086,
+          7.3508090361806495
+        ]
+      ],
+      "z": 10
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "count": 83.0,
+        "kind": "connector",
+        "leftAxis": "group",
+        "leftCategory": "adolescent",
+        "rightAxis": "gender",
+        "rightCategory": "male",
+        "text": "group=adolescent \u2192 gender=male<br>other: 83"
+      },
+      "id": "conn:0:group=adolescent>gender=male:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          36.2,
+          96.0
+        ],
+        [
+          36.2,
+          95.11722543352602
+        ],
+        [
+          65.8,
+          95.11722543352604
+        ],
+        [
+          65.8,
+          96.00000000000003
+        ]
+      ],
+      "z": 10
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "count": 148.0,
+        "kind": "connector",
+        "leftAxis": "group",
+        "leftCategory": "adult",
+        "rightAxis": "gender",
+        "rightCategory": "female",
+        "text": "group=adult \u2192 gender=female<br>highlighted (gender=female): 148"
+      },
+      "id": "conn:0:group=adult>gender=female:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          36.2,
+          5.574104046242776
+        ],
+        [
+          36.2,
+          4.000000000000001
+        ],
+        [
+          65.8,
+          4.000000000000001
+        ],
+        [
+          65.8,
+          5.574104046242776
+        ]
+      ],
+      "z": 10
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "count": 36.0,
+        "kind": "connector",
+        "leftAxis": "group",
+        "leftCategory": "adult",
+        "rightAxis": "gender",
+        "rightCategory": "male",
+        "text": "group=adult \u2192 gender=male<br>other: 36"
+      },
+      "id": "conn:0:group=adult>gender=male:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          36.018789717157084,
+          5.827307165749811
+        ],
+        [
+          36.38121028284291,
+          5.70379110014614
+        ],
+        [
+          65.9812102828429,
+          92.55604543540626
+        ],
+        [
+          65.61878971715707,
+          92.67956150100994
+        ]
+      ],
+      "z": 10
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "count": 146.0,
+        "kind": "connector",
+        "leftAxis": "group",
+        "leftCategory": "child",
+        "rightAxis": "gender",
+        "rightCategory": "female",
+        "text": "group=child \u2192 gender=female<br>highlighted (gender=female): 146"
+      },
+      "id": "conn:0:group=child>gender=female:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          35.5618917622117,
+          48.61109833249444
+        ],
+        [
+          36.838108237788305,
+          49.49572247675412
+        ],
+        [
+          66.4381082377883,
+          6.792832303343708
+        ],
+        [
+          65.1618917622117,
+          5.908208159084033
+        ]
+      ],
+      "z": 10
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "count": 217.0,
+        "kind": "connector",
+        "leftAxis": "group",
+        "leftCategory": "child",
+        "rightAxis": "gender",
+        "rightCategory": "male",
+        "text": "group=child \u2192 gender=male<br>other: 217"
+      },
+      "id": "conn:0:group=child>gender=male:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          35.249598632875944,
+          51.63835804461686
+        ],
+        [
+          37.15040136712406,
+          50.32927201318662
+        ],
+        [
+          66.75040136712406,
+          93.30869397850455
+        ],
+        [
+          64.84959863287594,
+          94.61778000993479
+        ]
+      ],
+      "z": 10
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "count": 123.0,
+        "kind": "connector",
+        "leftAxis": "gender",
+        "leftCategory": "female",
+        "rightAxis": "comorbidities",
+        "rightCategory": "0.0",
+        "text": "gender=female \u2192 comorbidities=0.0<br>highlighted (gender=female): 123"
+      },
+      "id": "conn:1:gender=female>comorbidities=0.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          84.2,
+          5.308208092485548
+        ],
+        [
+          84.2,
+          3.999999999999999
+        ],
+        [
+          113.8,
+          3.999999999999999
+        ],
+        [
+          113.8,
+          5.308208092485548
+        ]
+      ],
+      "z": 10
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "count": 147.0,
+        "kind": "connector",
+        "leftAxis": "gender",
+        "leftCategory": "female",
+        "rightAxis": "comorbidities",
+        "rightCategory": "1.0",
+        "text": "gender=female \u2192 comorbidities=1.0<br>highlighted (gender=female): 147"
+      },
+      "id": "conn:1:gender=female>comorbidities=1.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          83.91621247414989,
+          6.8183465139276
+        ],
+        [
+          84.48378752585012,
+          5.361537879135983
+        ],
+        [
+          114.08378752585013,
+          16.893746797385365
+        ],
+        [
+          113.51621247414987,
+          18.350555432176982
+        ]
+      ],
+      "z": 10
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "count": 54.0,
+        "kind": "connector",
+        "leftAxis": "gender",
+        "leftCategory": "female",
+        "rightAxis": "comorbidities",
+        "rightCategory": "2.0",
+        "text": "gender=female \u2192 comorbidities=2.0<br>highlighted (gender=female): 54"
+      },
+      "id": "conn:1:gender=female>comorbidities=2.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          84.01960012014777,
+          7.382274302569279
+        ],
+        [
+          84.38039987985223,
+          6.935413558702397
+        ],
+        [
+          113.98039987985224,
+          30.834744689998843
+        ],
+        [
+          113.61960012014775,
+          31.28160543386572
+        ]
+      ],
+      "z": 10
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "count": 17.0,
+        "kind": "connector",
+        "leftAxis": "gender",
+        "leftCategory": "female",
+        "rightAxis": "comorbidities",
+        "rightCategory": "3.0",
+        "text": "gender=female \u2192 comorbidities=3.0<br>highlighted (gender=female): 17"
+      },
+      "id": "conn:1:gender=female>comorbidities=3.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          84.12971763615651,
+          7.5932790500353855
+        ],
+        [
+          84.27028236384349,
+          7.4795533199068105
+        ],
+        [
+          113.87028236384349,
+          44.065081808759004
+        ],
+        [
+          113.72971763615651,
+          44.178807538887575
+        ]
+      ],
+      "z": 10
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "count": 10.0,
+        "kind": "connector",
+        "leftAxis": "gender",
+        "leftCategory": "female",
+        "rightAxis": "comorbidities",
+        "rightCategory": "4.0",
+        "text": "gender=female \u2192 comorbidities=4.0<br>highlighted (gender=female): 10"
+      },
+      "id": "conn:1:gender=female>comorbidities=4.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          84.15437531114021,
+          7.707320580071191
+        ],
+        [
+          84.24562468885979,
+          7.65267941992881
+        ],
+        [
+          113.84562468885979,
+          57.08394283859108
+        ],
+        [
+          113.75437531114021,
+          57.13858399873346
+        ]
+      ],
+      "z": 10
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "count": 2.0,
+        "kind": "connector",
+        "leftAxis": "gender",
+        "leftCategory": "female",
+        "rightAxis": "comorbidities",
+        "rightCategory": "5.0",
+        "text": "gender=female \u2192 comorbidities=5.0<br>highlighted (gender=female): 2"
+      },
+      "id": "conn:1:gender=female>comorbidities=5.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          84.19039278017557,
+          7.748378183556611
+        ],
+        [
+          84.2096072198244,
+          7.7392518742468575
+        ],
+        [
+          113.8096072198244,
+          70.05879357532035
+        ],
+        [
+          113.79039278017557,
+          70.0679198846301
+        ]
+      ],
+      "z": 10
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "count": 1.0,
+        "kind": "connector",
+        "leftAxis": "gender",
+        "leftCategory": "female",
+        "rightAxis": "comorbidities",
+        "rightCategory": "6.0",
+        "text": "gender=female \u2192 comorbidities=6.0<br>highlighted (gender=female): 1"
+      },
+      "id": "conn:1:gender=female>comorbidities=6.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          84.19505131608538,
+          7.7617157814540745
+        ],
+        [
+          84.20494868391462,
+          7.75782179080026
+        ],
+        [
+          113.80494868391462,
+          82.9922313696607
+        ],
+        [
+          113.79505131608538,
+          82.99612536031451
+        ]
+      ],
+      "z": 10
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "count": 2.0,
+        "kind": "connector",
+        "leftAxis": "gender",
+        "leftCategory": "female",
+        "rightAxis": "comorbidities",
+        "rightCategory": "7.0",
+        "text": "gender=female \u2192 comorbidities=7.0<br>highlighted (gender=female): 2"
+      },
+      "id": "conn:1:gender=female>comorbidities=7.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          84.1899174257016,
+          7.779108211481075
+        ],
+        [
+          84.21008257429841,
+          7.772336875224127
+        ],
+        [
+          113.81008257429839,
+          95.92161433187152
+        ],
+        [
+          113.7899174257016,
+          95.92838566812847
+        ]
+      ],
+      "z": 10
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "count": 142.0,
+        "kind": "connector",
+        "leftAxis": "gender",
+        "leftCategory": "male",
+        "rightAxis": "comorbidities",
+        "rightCategory": "0.0",
+        "text": "gender=male \u2192 comorbidities=0.0<br>other: 142"
+      },
+      "id": "conn:1:gender=male>comorbidities=0.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          83.48499932193977,
+          92.93856820893456
+        ],
+        [
+          84.91500067806024,
+          93.42443757141231
+        ],
+        [
+          114.51500067806022,
+          6.306287282394948
+        ],
+        [
+          113.08499932193978,
+          5.82041791991719
+        ]
+      ],
+      "z": 10
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "count": 135.0,
+        "kind": "connector",
+        "leftAxis": "gender",
+        "leftCategory": "male",
+        "rightAxis": "comorbidities",
+        "rightCategory": "1.0",
+        "text": "gender=male \u2192 comorbidities=1.0<br>other: 135"
+      },
+      "id": "conn:1:gender=male>comorbidities=1.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          83.53157436623292,
+          94.39262187950439
+        ],
+        [
+          84.86842563376709,
+          94.91651106847252
+        ],
+        [
+          114.46842563376707,
+          19.383748888455983
+        ],
+        [
+          113.13157436623293,
+          18.859859699487856
+        ]
+      ],
+      "z": 10
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "count": 40.0,
+        "kind": "connector",
+        "leftAxis": "gender",
+        "leftCategory": "male",
+        "rightAxis": "comorbidities",
+        "rightCategory": "2.0",
+        "text": "gender=male \u2192 comorbidities=2.0<br>other: 40"
+      },
+      "id": "conn:1:gender=male>comorbidities=2.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          84.00691809286484,
+          95.49593978696325
+        ],
+        [
+          84.39308190713514,
+          95.67446483731425
+        ],
+        [
+          113.99308190713514,
+          31.64732198017137
+        ],
+        [
+          113.60691809286483,
+          31.46879692982037
+        ]
+      ],
+      "z": 10
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "count": 15.0,
+        "kind": "connector",
+        "leftAxis": "gender",
+        "leftCategory": "male",
+        "rightAxis": "comorbidities",
+        "rightCategory": "3.0",
+        "text": "gender=male \u2192 comorbidities=3.0<br>other: 15"
+      },
+      "id": "conn:1:gender=male>comorbidities=3.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          84.13081220287783,
+          95.83798763495516
+        ],
+        [
+          84.26918779712214,
+          95.91738808758821
+        ],
+        [
+          113.86918779712214,
+          44.331818310544435
+        ],
+        [
+          113.73081220287783,
+          44.25241785791138
+        ]
+      ],
+      "z": 10
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "count": 4.0,
+        "kind": "connector",
+        "leftAxis": "gender",
+        "leftCategory": "male",
+        "rightAxis": "comorbidities",
+        "rightCategory": "4.0",
+        "text": "gender=male \u2192 comorbidities=4.0<br>other: 4"
+      },
+      "id": "conn:1:gender=male>comorbidities=4.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          84.1830889623073,
+          95.96582479639902
+        ],
+        [
+          84.21691103769271,
+          95.99163185099984
+        ],
+        [
+          113.81691103769269,
+          57.19861781301471
+        ],
+        [
+          113.7830889623073,
+          57.17281075841389
+        ]
+      ],
+      "z": 10
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "axis": "group",
+        "category": "adult",
+        "count": 184.0,
+        "kind": "unibar",
+        "text": "group = adult<br>other: 36<br>highlighted (gender=female): 148"
+      },
+      "id": "uni:group=adult:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          19.8,
+          5.956994219653179
+        ],
+        [
+          31.382608695652177,
+          5.956994219653179
+        ],
+        [
+          31.382608695652177,
+          4.0
+        ],
+        [
+          19.8,
+          4.0
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "axis": "group",
+        "category": "adult",
+        "count": 184.0,
+        "kind": "unibar",
+        "text": "group = adult<br>other: 36<br>highlighted (gender=female): 148"
+      },
+      "id": "uni:group=adult:s1",
+      "type": "polygon",
+      "vertices": [
+        [
+          31.382608695652177,
+          5.956994219653179
+        ],
+        [
+          34.2,
+          5.956994219653179
+        ],
+        [
+          34.2,
+          4.0
+        ],
+        [
+          31.382608695652177,
+          4.0
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "axis": "group",
+        "category": "child",
+        "count": 363.0,
+        "kind": "unibar",
+        "text": "group = child<br>other: 217<br>highlighted (gender=female): 146"
+      },
+      "id": "uni:group=child:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          19.8,
+          52.1378034682081
+        ],
+        [
+          25.591735537190083,
+          52.1378034682081
+        ],
+        [
+          25.591735537190083,
+          48.27699421965318
+        ],
+        [
+          19.8,
+          48.27699421965318
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "axis": "group",
+        "category": "child",
+        "count": 363.0,
+        "kind": "unibar",
+        "text": "group = child<br>other: 217<br>highlighted (gender=female): 146"
+      },
+      "id": "uni:group=child:s1",
+      "type": "polygon",
+      "vertices": [
+        [
+          25.591735537190083,
+          52.1378034682081
+        ],
+        [
+          34.2,
+          52.1378034682081
+        ],
+        [
+          34.2,
+          48.27699421965318
+        ],
+        [
+          25.591735537190083,
+          48.27699421965318
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "axis": "group",
+        "category": "adolescent",
+        "count": 145.0,
+        "kind": "unibar",
+        "text": "group = adolescent<br>other: 83<br>highlighted (gender=female): 62"
+      },
+      "id": "uni:group=adolescent:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          19.8,
+          96.0
+        ],
+        [
+          25.957241379310346,
+          96.0
+        ],
+        [
+          25.957241379310346,
+          94.45780346820811
+        ],
+        [
+          19.8,
+          94.45780346820811
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "axis": "group",
+        "category": "adolescent",
+        "count": 145.0,
+        "kind": "unibar",
+        "text": "group = adolescent<br>other: 83<br>highlighted (gender=female): 62"
+      },
+      "id": "uni:group=adolescent:s1",
+      "type": "polygon",
+      "vertices": [
+        [
+          25.957241379310346,
+          96.0
+        ],
+        [
+          34.2,
+          96.0
+        ],
+        [
+          34.2,
+          94.45780346820811
+        ],
+        [
+          25.957241379310346,
+          94.45780346820811
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "axis": "gender",
+        "category": "female",
+        "count": 356.0,
+        "kind": "unibar",
+        "text": "gender = female<br>highlighted (gender=female): 356"
+      },
+      "id": "uni:gender=female:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          67.8,
+          7.78635838150289
+        ],
+        [
+          82.2,
+          7.78635838150289
+        ],
+        [
+          82.2,
+          4.0
+        ],
+        [
+          67.8,
+          4.0
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "axis": "gender",
+        "category": "male",
+        "count": 336.0,
+        "kind": "unibar",
+        "text": "gender = male<br>other: 336"
+      },
+      "id": "uni:gender=male:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          67.8,
+          96.00000000000001
+        ],
+        [
+          82.2,
+          96.00000000000001
+        ],
+        [
+          82.2,
+          92.42635838150291
+        ],
+        [
+          67.8,
+          92.42635838150291
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "axis": "comorbidities",
+        "category": "0.0",
+        "count": 265.0,
+        "kind": "unibar",
+        "text": "comorbidities = 0.0<br>other: 142<br>highlighted (gender=female): 123"
+      },
+      "id": "uni:comorbidities=0.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          115.8,
+          6.81849710982659
+        ],
+        [
+          122.48377358490565,
+          6.81849710982659
+        ],
+        [
+          122.48377358490565,
+          3.999999999999999
+        ],
+        [
+          115.8,
+          3.999999999999999
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "axis": "comorbidities",
+        "category": "0.0",
+        "count": 265.0,
+        "kind": "unibar",
+        "text": "comorbidities = 0.0<br>other: 142<br>highlighted (gender=female): 123"
+      },
+      "id": "uni:comorbidities=0.0:s1",
+      "type": "polygon",
+      "vertices": [
+        [
+          122.48377358490565,
+          6.81849710982659
+        ],
+        [
+          130.2,
+          6.81849710982659
+        ],
+        [
+          130.2,
+          3.999999999999999
+        ],
+        [
+          122.48377358490565,
+          3.999999999999999
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "axis": "comorbidities",
+        "category": "1.0",
+        "count": 282.0,
+        "kind": "unibar",
+        "text": "comorbidities = 1.0<br>other: 135<br>highlighted (gender=female): 147"
+      },
+      "id": "uni:comorbidities=1.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          115.8,
+          19.83972336911643
+        ],
+        [
+          123.30638297872339,
+          19.83972336911643
+        ],
+        [
+          123.30638297872339,
+          16.840417010734928
+        ],
+        [
+          115.8,
+          16.840417010734928
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "axis": "comorbidities",
+        "category": "1.0",
+        "count": 282.0,
+        "kind": "unibar",
+        "text": "comorbidities = 1.0<br>other: 135<br>highlighted (gender=female): 147"
+      },
+      "id": "uni:comorbidities=1.0:s1",
+      "type": "polygon",
+      "vertices": [
+        [
+          123.30638297872339,
+          19.83972336911643
+        ],
+        [
+          130.2,
+          19.83972336911643
+        ],
+        [
+          130.2,
+          16.840417010734928
+        ],
+        [
+          123.30638297872339,
+          16.840417010734928
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "axis": "comorbidities",
+        "category": "2.0",
+        "count": 94.0,
+        "kind": "unibar",
+        "text": "comorbidities = 2.0<br>other: 40<br>highlighted (gender=female): 54"
+      },
+      "id": "uni:comorbidities=2.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          115.8,
+          31.770776218001654
+        ],
+        [
+          124.0723404255319,
+          31.770776218001654
+        ],
+        [
+          124.0723404255319,
+          30.771007431874484
+        ],
+        [
+          115.8,
+          30.771007431874484
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "axis": "comorbidities",
+        "category": "2.0",
+        "count": 94.0,
+        "kind": "unibar",
+        "text": "comorbidities = 2.0<br>other: 40<br>highlighted (gender=female): 54"
+      },
+      "id": "uni:comorbidities=2.0:s1",
+      "type": "polygon",
+      "vertices": [
+        [
+          124.0723404255319,
+          31.770776218001654
+        ],
+        [
+          130.2,
+          31.770776218001654
+        ],
+        [
+          130.2,
+          30.771007431874484
+        ],
+        [
+          124.0723404255319,
+          30.771007431874484
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "axis": "comorbidities",
+        "category": "3.0",
+        "count": 32.0,
+        "kind": "unibar",
+        "text": "comorbidities = 3.0<br>other: 15<br>highlighted (gender=female): 17"
+      },
+      "id": "uni:comorbidities=3.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          115.8,
+          44.371886870355084
+        ],
+        [
+          123.44999999999999,
+          44.371886870355084
+        ],
+        [
+          123.44999999999999,
+          44.031540049545825
+        ],
+        [
+          115.8,
+          44.031540049545825
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "axis": "comorbidities",
+        "category": "3.0",
+        "count": 32.0,
+        "kind": "unibar",
+        "text": "comorbidities = 3.0<br>other: 15<br>highlighted (gender=female): 17"
+      },
+      "id": "uni:comorbidities=3.0:s1",
+      "type": "polygon",
+      "vertices": [
+        [
+          123.44999999999999,
+          44.371886870355084
+        ],
+        [
+          130.2,
+          44.371886870355084
+        ],
+        [
+          130.2,
+          44.031540049545825
+        ],
+        [
+          123.44999999999999,
+          44.031540049545825
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "axis": "comorbidities",
+        "category": "4.0",
+        "count": 14.0,
+        "kind": "unibar",
+        "text": "comorbidities = 4.0<br>other: 4<br>highlighted (gender=female): 10"
+      },
+      "id": "uni:comorbidities=4.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          115.8,
+          57.20753509496284
+        ],
+        [
+          126.08571428571427,
+          57.20753509496284
+        ],
+        [
+          126.08571428571427,
+          57.05753509496284
+        ],
+        [
+          115.8,
+          57.05753509496284
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "axis": "comorbidities",
+        "category": "4.0",
+        "count": 14.0,
+        "kind": "unibar",
+        "text": "comorbidities = 4.0<br>other: 4<br>highlighted (gender=female): 10"
+      },
+      "id": "uni:comorbidities=4.0:s1",
+      "type": "polygon",
+      "vertices": [
+        [
+          126.08571428571427,
+          57.20753509496284
+        ],
+        [
+          130.2,
+          57.20753509496284
+        ],
+        [
+          130.2,
+          57.05753509496284
+        ],
+        [
+          126.08571428571427,
+          57.05753509496284
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "axis": "comorbidities",
+        "category": "5.0",
+        "count": 2.0,
+        "kind": "unibar",
+        "text": "comorbidities = 5.0<br>highlighted (gender=female): 2"
+      },
+      "id": "uni:comorbidities=5.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          115.8,
+          70.13835672997521
+        ],
+        [
+          130.2,
+          70.13835672997521
+        ],
+        [
+          130.2,
+          69.98835672997524
+        ],
+        [
+          115.8,
+          69.98835672997524
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "axis": "comorbidities",
+        "category": "6.0",
+        "count": 1.0,
+        "kind": "unibar",
+        "text": "comorbidities = 6.0<br>highlighted (gender=female): 1"
+      },
+      "id": "uni:comorbidities=6.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          115.8,
+          83.06917836498762
+        ],
+        [
+          130.2,
+          83.06917836498762
+        ],
+        [
+          130.2,
+          82.91917836498759
+        ],
+        [
+          115.8,
+          82.91917836498759
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#fdc086",
+      "hover": {
+        "axis": "comorbidities",
+        "category": "7.0",
+        "count": 2.0,
+        "kind": "unibar",
+        "text": "comorbidities = 7.0<br>highlighted (gender=female): 2"
+      },
+      "id": "uni:comorbidities=7.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          115.8,
+          96.00000000000001
+        ],
+        [
+          130.2,
+          96.00000000000001
+        ],
+        [
+          130.2,
+          95.84999999999998
+        ],
+        [
+          115.8,
+          95.84999999999998
+        ]
+      ],
+      "z": 20
+    }
+  ],
+  "meta": {
+    "highlighted": true,
+    "shape": "rectangle",
+    "weighted": false
+  },
+  "version": 1,
+  "warnings": [
+    "is_categorical_dtype is deprecated and will be removed in a future version. Use isinstance(dtype, pd.CategoricalDtype) instead",
+    "is_categorical_dtype is deprecated and will be removed in a future version. Use isinstance(dtype, pd.CategoricalDtype) instead"
+  ]
+}

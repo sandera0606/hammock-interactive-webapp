@@ -18,14 +18,14 @@ Status legend: `[ ]` todo · `[~]` in progress · `[x]` done. Technical detail f
 - [x] `Dockerfile` (multi-stage: build SPA → python serves SPA+API) + `.dockerignore`/`.gcloudignore` for Cloud Run
 
 ## M1 — Engine (lift spikes into backend)
-- [ ] `RecordingRectangle/Parallelogram` (painter recorder) + Axes instrumentation (`pyplot.subplots` patch, 6 primitives) + `RecordingFigure`
-- [ ] `scene_capture` context manager (all patches; defensive signature asserts; restore in `finally`). **Serialize with a per-process lock** — it patches global module state and matplotlib Agg isn't thread-safe, so concurrent captures in one process corrupt each other. Scale via worker processes / Cloud Run instances, not threads.
-- [ ] `enrich.py` — connector `(left/rightCategory)` via regroup of `fig.data_df`; unibar category via `Value` matching; box/violin hover via geometry + scale-inversion
-- [ ] `scene_builder.py` — merge semantic polygons + faithful marks + labels → unified `marks[]` Scene-Graph
-- [ ] `POST /api/plot` returns a Scene (one categorical + one numeric/box/violin dataset)
-- [ ] Frontend renders `marks[]` + labels; **hover works**; **box/violin match the library PNG**; zoom/pan
-- [ ] First golden-scene test green
-- **Exit:** categorical + numeric datasets interactive; box/violin pixel-faithful; correct hover
+- [x] `RecordingRectangle/Parallelogram` (painter recorder) + Axes instrumentation (`pyplot.subplots` patch, 6 primitives) + `RecordingFigure` — `backend/app/capture/recorder.py` (`SceneRecorder` owns all buffers; no module globals)
+- [x] `scene_capture` context manager (all patches; defensive signature asserts via `inspect`; restore in `finally`; `plt.close('all')`; `warnings.catch_warnings`). **Serialized with a per-process `threading.Lock`** — patches global module state and Agg isn't thread-safe. Scale via worker processes / Cloud Run instances, not threads.
+- [x] `enrich.py` — connector `(left/rightCategory)` via regroup of `fig.data_df`; unibar category via `Value.vert_centre` matching; box/violin hover via geometry + scale-inversion (`uni.range` + `draw_y_start/end`)
+- [x] `scene_builder.py` — merge semantic polygons (z=10 connectors / z=20 unibars) + faithful marks (z=30+captured) + labels → unified `marks[]` Scene-Graph, sorted by z
+- [x] `POST /api/plot` returns a Scene (stateless: SPA ships data+options). Bonus: `GET /api/samples[/{name}]` serves bundled asthma (categorical) + penguins (box/violin) so the SPA has data to round-trip
+- [x] Frontend renders `marks[]` + labels (`lib/sceneToTraces.ts` → plotly via thin `HammockPlot` wrapper over `plotly.js-dist-min`); hover wired (`hoveron:'fills'` + hovertemplate); zoom/pan/scrollZoom. **Visual confirm of box/violin-vs-PNG + hover is the user's step (run `dev.ps1`)** — rendering mirrors the confirmed `compare3.html` mapping.
+- [x] First golden-scene test green — `backend/tests/test_golden_scene.py` (float-tol deep compare vs stored goldens + smoke asserts; `--update-golden` to regenerate). 11/11 backend tests pass.
+- **Exit:** categorical + numeric datasets interactive; box/violin pixel-faithful; correct hover — engine + API + golden tests done; **awaiting user's browser confirmation of the render.**
 
 ## M2 — Full options GUI ("b")
 - [ ] Pydantic `PlotOptions` (every `plot()` param) + `optionsToRequest.ts`
@@ -41,6 +41,7 @@ Status legend: `[ ]` todo · `[~]` in progress · `[x]` done. Technical detail f
 ## M3 — Polish + stretch
 - [ ] Drag-to-reorder axes (`@dnd-kit`) → reorder `var` → refetch
 - [ ] Warnings toasts, export (PNG/SVG/HTML), loading/error/empty states
+- [ ] Loading bar / progress indicator during plot capture — cold-start instances pay the ~3–8s matplotlib import (concurrency=1 → each new user may wait on a fresh instance), so a visible progress bar matters for perceived latency, not just the current "Rendering…" text overlay
 - [ ] Perf pass: trace batching, debounce tuning, in-flight cancellation
 - [ ] (Optional) `native` box/violin toggle (go.Box/go.Violin, per `spike2.py`)
 
