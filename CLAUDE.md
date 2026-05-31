@@ -52,11 +52,21 @@ Stable `id`s later enable editor mode "a" (clicked mark → option delta).
 ## Library API quick ref (`Hammock(df).plot(...)`)
 Params to expose: `var, weights, value_order, numerical_var_levels, display_type` (rugplot|box|violin|stacked bar|bar chart), `missing, missing_placeholder, label, unibar, hi_var, hi_value, hi_box, hi_missing, colors, default_color, connector_color, uni_vfill, connector_fraction, uni_hfill, label_options, height, width, min_bar_height, alpha, shape` (rectangle|parallelogram), `same_scale, violin_bw_method`. Always pass `display_figure=False`. Data = pandas DataFrame. Deps incl. `scipy` (imported at module top for `gaussian_kde`).
 
+## Deployment & concurrency
+**Target: one Docker image on Google Cloud Run (free tier).** `Dockerfile` is multi-stage — node builds the SPA, then `python:3.13-slim` installs the backend (`-e ./vendor/hammock_plot` + `scipy`, which the pin's `pyproject.toml` omits) and serves both. `main.py` mounts the built SPA via `StaticFiles` at `/` **only when `FRONTEND_DIST` exists** (set in the image; absent in dev/test, where Vite serves the SPA and proxies `/api`). `/api/*` routes register before the mount, so they win.
+- **Listen on `$PORT`** (Cloud Run sets it; default 8080), host `0.0.0.0`. `MPLBACKEND=Agg` in the image.
+- **Pinned SHA in the container:** no git inside the image, so `version.py` reads `HAMMOCK_PIN` (env, set in the `Dockerfile`) first, then falls back to `git`/gitdir for local dev. Bump it in the `Dockerfile` when the submodule pin moves.
+- **Capture is NOT concurrency-safe** (the user's deployed-webapp constraint): the shim patches **global** module state (`figure.Rectangle/Parallelogram`, `main.Figure`, `pyplot.subplots`) and Agg isn't thread-safe. Two captures in one process collide. → **Serialize each capture with a per-process lock**, run **Cloud Run concurrency=1 per instance**, and scale out by instances/worker processes, never threads.
+- **Backend stays stateless** — the SPA sends `data + options` on every `/api/plot` call; no server-side dataset store (multi-user + horizontally scalable). Large-dataset object-storage upload is a later seam.
+- Deploy: `git submodule update --init` (so the upload has the lib) → `gcloud run deploy --source .`. `.gcloudignore`/`.dockerignore` keep `.venv`/`node_modules`/`dist`/`.git`/`spike` out of the build.
+
 ## Dev commands (Windows / PowerShell)
 - Backend: `$env:MPLBACKEND="Agg"; uvicorn app.main:app --reload --port 8000`
 - Frontend: `npm run dev` (vite :5173, proxy `/api → :8000`)
 - Tests: `pytest backend/tests/`
-- A `dev.ps1` should launch both. Prod option: `vite build` → serve static via FastAPI `StaticFiles`.
+- `dev.ps1` launches both for hot-reload dev.
+- **Single-process (prod-shape) locally:** `cd frontend; npm run build`, then run the backend — it auto-serves `frontend/dist` at `/`. One origin, no Vite.
+- **Container:** `docker build -t hammock-webapp .` → `docker run -p 8080:8080 hammock-webapp` → open `http://localhost:8080`.
 
 ## Reference files
 - READ-ONLY shim targets: `../../hammock_plot/hammock_plot/{shapes,figure,unibar,main}.py`.

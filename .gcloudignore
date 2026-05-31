@@ -1,0 +1,16 @@
+# What NOT to upload to Cloud Build for `gcloud run deploy --source .`.
+# (The Dockerfile must stay; vendor/ source is required for the editable install.)
+.git/
+**/.git/
+
+**/.venv/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+
+frontend/node_modules/
+frontend/dist/
+vendor/**/venv/
+
+spike/
+dev.ps1

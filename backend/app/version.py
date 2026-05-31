@@ -2,11 +2,15 @@
 
 The pinned SHA is the resilience tripwire (CLAUDE.md): the backend reports it
 from GET /api/health so an unexpected library bump is visible immediately.
-Resolution is dependency-free: try `git rev-parse`, then fall back to reading
-the submodule's gitdir HEAD pointer directly.
+Resolution is dependency-free and tries, in order:
+  1. the HAMMOCK_PIN env var — set by the Docker image, since the deployed
+     container has neither git nor the submodule's gitdir;
+  2. `git rev-parse` against the submodule (local dev);
+  3. reading the submodule's gitdir HEAD pointer directly (local fallback).
 """
 from __future__ import annotations
 
+import os
 import subprocess
 from pathlib import Path
 
@@ -57,7 +61,7 @@ def _sha_via_gitdir() -> str | None:
 
 def get_hammock_pin() -> dict | None:
     """Return {"sha": <full>, "short": <7>} for the vendored library, or None."""
-    sha = _sha_via_git() or _sha_via_gitdir()
+    sha = os.environ.get("HAMMOCK_PIN", "").strip() or _sha_via_git() or _sha_via_gitdir()
     if not sha:
         return None
     return {"sha": sha, "short": sha[:7]}

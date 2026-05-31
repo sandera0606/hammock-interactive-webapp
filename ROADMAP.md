@@ -8,16 +8,18 @@ Status legend: `[ ]` todo · `[~]` in progress · `[x]` done. Technical detail f
 - [x] `spike3.py` — **pixel-faithful** box/violin via Axes instrumentation (chosen; `compare3.html`)
 - [x] Decisions locked: box/violin = pixel-faithful default; resilience = shim now, hook later
 
-## M0 — Scaffolding
-- [ ] Repo layout (`backend/`, `frontend/`, `vendor/`)
-- [ ] `hammock_plot` as git submodule pinned to SHA `925520b`, `-e` install
-- [ ] FastAPI skeleton; `GET /api/health` returns the pinned SHA
-- [ ] Vite + React + TS skeleton with `/api` proxy → :8000
-- [ ] Confirm `Hammock(df).plot(display_figure=False)` runs headless under `MPLBACKEND=Agg` from the backend
+## M0 — Scaffolding (DONE)
+- [x] Repo layout (`backend/`, `frontend/`, `vendor/`)
+- [x] `hammock_plot` as git submodule pinned to SHA `925520b`, `-e` install (note: that pin's `pyproject.toml` omits `scipy`, a real runtime dep — `backend/requirements.txt` declares it explicitly)
+- [x] FastAPI skeleton; `GET /api/health` returns the pinned SHA (`HAMMOCK_PIN` env override for containers without git)
+- [x] Vite + React + TS skeleton with `/api` proxy → :8000; health page renders the pin
+- [x] Confirm `Hammock(df).plot(display_figure=False)` runs headless under `MPLBACKEND=Agg` from the backend
+- [x] Single-process serve mode: FastAPI mounts the built SPA via `StaticFiles` when present
+- [x] `Dockerfile` (multi-stage: build SPA → python serves SPA+API) + `.dockerignore`/`.gcloudignore` for Cloud Run
 
 ## M1 — Engine (lift spikes into backend)
 - [ ] `RecordingRectangle/Parallelogram` (painter recorder) + Axes instrumentation (`pyplot.subplots` patch, 6 primitives) + `RecordingFigure`
-- [ ] `scene_capture` context manager (all patches; defensive signature asserts; restore in `finally`)
+- [ ] `scene_capture` context manager (all patches; defensive signature asserts; restore in `finally`). **Serialize with a per-process lock** — it patches global module state and matplotlib Agg isn't thread-safe, so concurrent captures in one process corrupt each other. Scale via worker processes / Cloud Run instances, not threads.
 - [ ] `enrich.py` — connector `(left/rightCategory)` via regroup of `fig.data_df`; unibar category via `Value` matching; box/violin hover via geometry + scale-inversion
 - [ ] `scene_builder.py` — merge semantic polygons + faithful marks + labels → unified `marks[]` Scene-Graph
 - [ ] `POST /api/plot` returns a Scene (one categorical + one numeric/box/violin dataset)
@@ -27,7 +29,7 @@ Status legend: `[ ]` todo · `[~]` in progress · `[x]` done. Technical detail f
 
 ## M2 — Full options GUI ("b")
 - [ ] Pydantic `PlotOptions` (every `plot()` param) + `optionsToRequest.ts`
-- [ ] `POST /api/data/upload` (dtype + weight-var inference), `GET /api/datasets`, sample loader, preview table
+- [ ] `POST /api/data/upload` (dtype + weight-var inference), sample loader, preview table — **stateless**: parsed data returns to the client and rides along on each `/api/plot` request (no server-side dataset store; multi-user + horizontally scalable). Large-dataset object-storage upload is a later seam.
 - [ ] Option tabs mirroring `hammock_settings.py`: Presets, Variables, General, Highlighting, Weights, Unibar-Specific
 - [ ] Highlighting / weights / value_order / missing / same_scale / shape / label_options end-to-end
 - [ ] `/api/validate-expression` (reuse library `validate_expression`)
@@ -41,6 +43,14 @@ Status legend: `[ ]` todo · `[~]` in progress · `[x]` done. Technical detail f
 - [ ] Warnings toasts, export (PNG/SVG/HTML), loading/error/empty states
 - [ ] Perf pass: trace batching, debounce tuning, in-flight cancellation
 - [ ] (Optional) `native` box/violin toggle (go.Box/go.Violin, per `spike2.py`)
+
+## Deployment — Cloud Run (free tier)
+Target: **one Docker image**, FastAPI serves the built SPA + API, on **Google Cloud Run** (scales to zero → free at low traffic). Image build pipeline is done (M0); the rest lands alongside M1.
+- [x] `Dockerfile` + single-process serve mode + ignore files (M0)
+- [ ] First deploy: `gcloud run deploy --source .` → live URL; verify `/` (SPA) and `/api/health` (pin + importable). Submodule must be `--init`'d so it's in the upload.
+- [ ] Concurrency safety in the deployed app: serialized capture lock (see M1) verified under parallel requests; set Cloud Run **concurrency=1 per instance** (each capture owns the process) and let Cloud Run scale out instances.
+- [ ] Cold-start note: free tier scales to zero → first hit pays the matplotlib import (~3–8s). Add a **min-instance=1** only if/when latency matters (leaves the free tier).
+- [ ] Bump `HAMMOCK_PIN` in the `Dockerfile` whenever the submodule pin changes (container has no git; golden test is the tripwire).
 
 ## Upstream hook (after contract settles)
 - [ ] Add additive `to_scene()` export to `hammock_plot` (no behavior change); switch backend to call it → stable public API instead of internal coupling.

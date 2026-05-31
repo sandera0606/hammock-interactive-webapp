@@ -1,0 +1,20 @@
+# Keep the build context small and reproducible.
+**/.venv/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+
+frontend/node_modules/
+frontend/dist/
+
+# Submodule git internals + any stray venvs (source itself is needed).
+**/.git/
+.git/
+vendor/**/venv/
+
+# Not needed in the image.
+spike/
+*.md
+dev.ps1
+.gitignore
+.gcloudignore

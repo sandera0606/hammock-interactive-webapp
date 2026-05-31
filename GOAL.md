@@ -16,6 +16,7 @@ A shared **interactive rendering engine** + UIs on top:
 - Stack: **React + FastAPI + plotly.js** (plotly.js is free/MIT). Slicker than Streamlit.
 - **Never edit `hammock_plot`.** Capture geometry via a monkey-patch shim in our backend; stay resilient to upstream changes via SHA-pinning + golden tests. See CLAUDE.md.
 - Interactivity priority: **hover tooltips first**, zoom/pan free, **drag-to-reorder axes = stretch**.
+- **This is a deployed, multi-user webapp** (not a local tool). Ships as **one Docker image** (FastAPI serves the built SPA + the API) on **Google Cloud Run** (free tier; scales to zero). The backend is **stateless** — the frontend sends data + options with each plot request — so it scales horizontally. See CLAUDE.md "Deployment & concurrency".
 
 ## Success criteria
 - M1: one dataset renders interactively with correct hover on connectors + unibars.
@@ -24,4 +25,4 @@ A shared **interactive rendering engine** + UIs on top:
 
 ## Out of scope (v1)
 - Native plotly `go.Box`/`go.Violin` mode (a possible future toggle). Default box/violin are **pixel-faithful** — captured via Axes instrumentation to look exactly like the library (proven in `spike/spike3.py` / `compare3.html`).
-- Multi-user persistence / auth (local single-user tool; in-memory dataset store is the seam for later).
+- **Auth / accounts** and server-side persistence of user data. The webapp is multi-user but anonymous: datasets live client-side and ride along on each request (stateless backend). Object-storage upload for large datasets is a later seam.
