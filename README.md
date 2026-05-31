@@ -1,0 +1,28 @@
+# hammock-plot-interactive-webapp
+
+Interactive (plotly.js) frontend for the [`hammock_plot`](../../hammock_plot) library. Renders hover/zoom/pan hammock plots instead of static PNGs.
+
+- **Why & what:** GOAL.md
+- **How it works internally (architecture, capture shim, gotchas):** CLAUDE.md
+- **Milestones & status:** ROADMAP.md
+
+## Structure
+```
+backend/    FastAPI; capture shim turns hammock_plot's matplotlib geometry into Scene-Graph JSON
+frontend/   Vite + React + TS; renders the Scene-Graph with plotly.js + the options GUI
+vendor/hammock_plot   git submodule, SHA-pinned, installed editable (never edited)
+```
+
+## Run (Windows / PowerShell)
+```powershell
+# backend
+$env:MPLBACKEND="Agg"
+uvicorn app.main:app --reload --port 8000   # from backend/, in its venv
+
+# frontend (separate terminal)
+npm run dev                                  # from frontend/, vite :5173 -> proxies /api to :8000
+```
+Tests: `pytest backend/tests/`
+
+## How it works (one paragraph)
+The backend monkey-patches recording subclasses into `hammock_plot` at call time, runs `plot(display_figure=False)` headless, and captures the computed polygon geometry + semantic metadata into a **Scene-Graph JSON** (the stable contract). The React frontend renders that JSON as interactive plotly traces with hover tooltips. The library is never modified; it's SHA-pinned and guarded by a golden-scene test. Details in CLAUDE.md.
