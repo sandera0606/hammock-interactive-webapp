@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+httpx
+pytest
+# scipy is a runtime dep of hammock_plot (unibar.py: scipy.stats.gaussian_kde)
+# but the pinned SHA's pyproject.toml omits it, so declare it here explicitly.
+scipy
+# hammock_plot (editable) — pulls matplotlib, numpy, pandas, scipy.
+# Path is relative to the repo root; install with:
+#   backend/.venv/Scripts/python -m pip install -r backend/requirements.txt
+# run from the repo root.
+-e ./vendor/hammock_plot

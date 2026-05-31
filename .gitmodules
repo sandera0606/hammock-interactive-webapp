@@ -1,0 +1,3 @@
+[submodule "vendor/hammock_plot"]
+	path = vendor/hammock_plot
+	url = https://github.com/TianchengY/hammock_plot.git
