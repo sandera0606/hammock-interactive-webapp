@@ -11,3 +11,4 @@ frontend/dist/
 # Matplotlib / misc
 *.log
 .DS_Store
+.claude/settings.json
