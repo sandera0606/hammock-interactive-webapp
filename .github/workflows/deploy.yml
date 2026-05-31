@@ -1,0 +1,43 @@
+name: Deploy to Cloud Run
+
+# Auto-deploy the webapp whenever the `main` branch is pushed.
+on:
+  push:
+    branches: [main]
+
+# Required for Workload Identity Federation: the job mints a short-lived
+# OIDC token that GCP trusts. No service-account key is stored anywhere.
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # vendor/hammock_plot is a git submodule the Dockerfile installs (-e),
+      # so it must be checked out or the build fails.
+      - name: Checkout (with submodule)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: hammock-plot-interactive
+          workload_identity_provider: projects/36363570181/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: github-deployer@hammock-plot-interactive.iam.gserviceaccount.com
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      # Builds the Dockerfile in the cloud (Cloud Build) and deploys to Cloud Run.
+      - name: Deploy
+        run: |
+          gcloud run deploy hammock-webapp \
+            --source . \
+            --project hammock-plot-interactive \
+            --region us-central1 \
+            --allow-unauthenticated \
+            --quiet
