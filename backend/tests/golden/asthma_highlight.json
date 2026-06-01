@@ -1,19 +1,19 @@
 {
   "axes": [
     {
-      "displayType": "stacked bar",
+      "displayType": "stacked_bar",
       "dtype": "categorical",
       "name": "group",
       "x": 27.0
     },
     {
-      "displayType": "stacked bar",
+      "displayType": "stacked_bar",
       "dtype": "categorical",
       "name": "gender",
       "x": 75.0
     },
     {
-      "displayType": "rugplot",
+      "displayType": "rug",
       "dtype": "numerical",
       "name": "comorbidities",
       "x": 123.0
@@ -1479,8 +1479,5 @@
     "weighted": false
   },
   "version": 1,
-  "warnings": [
-    "is_categorical_dtype is deprecated and will be removed in a future version. Use isinstance(dtype, pd.CategoricalDtype) instead",
-    "is_categorical_dtype is deprecated and will be removed in a future version. Use isinstance(dtype, pd.CategoricalDtype) instead"
-  ]
+  "warnings": []
 }

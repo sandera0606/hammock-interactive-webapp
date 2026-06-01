@@ -2,8 +2,9 @@ fastapi
 uvicorn[standard]
 httpx
 pytest
-# scipy is a runtime dep of hammock_plot (unibar.py: scipy.stats.gaussian_kde)
-# but the pinned SHA's pyproject.toml omits it, so declare it here explicitly.
+# scipy is a runtime dep of hammock_plot (unibar.py: scipy.stats.gaussian_kde).
+# The current pin (deae4c2) declares scipy in its pyproject, but we keep it here
+# explicitly so the dep is pinned independently of submodule bumps.
 scipy
 # hammock_plot (editable) — pulls matplotlib, numpy, pandas, scipy.
 # Path is relative to the repo root; install with:

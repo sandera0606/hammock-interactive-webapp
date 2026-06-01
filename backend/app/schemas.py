@@ -69,3 +69,18 @@ class PlotRequest(BaseModel):
         if not v or not v[0]:
             raise ValueError("data must contain at least one non-empty row")
         return v
+
+
+class CsvUpload(BaseModel):
+    """A CSV uploaded as text. The SPA reads the file client-side and posts its
+    contents here as JSON, keeping the whole API pure-JSON (no multipart dep) and
+    the backend stateless — parsed rows + column metadata return to the client."""
+
+    content: str = Field(..., min_length=1)
+    filename: str | None = None
+
+
+class ExpressionRequest(BaseModel):
+    """A highlight expression to validate (regex or numeric range)."""
+
+    expr: str

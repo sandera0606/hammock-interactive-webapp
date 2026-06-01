@@ -24,7 +24,7 @@ ENV MPLBACKEND=Agg \
     # Snapshot of the vendored hammock_plot pin: the container has no git, so
     # version.py reads this for GET /api/health. Keep in sync with the submodule
     # pin (ROADMAP M0 / `git submodule status`).
-    HAMMOCK_PIN=925520b263a3f0c72dea4226fd28db3e10fdafc3
+    HAMMOCK_PIN=deae4c2b5845ddeb3b9778f8873ecd4639ed8a66
 
 WORKDIR /app
 

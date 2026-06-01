@@ -1,0 +1,581 @@
+{
+  "axes": [
+    {
+      "displayType": "stacked_bar",
+      "dtype": "categorical",
+      "name": "group",
+      "x": 27.0
+    },
+    {
+      "displayType": "stacked_bar",
+      "dtype": "categorical",
+      "name": "gender",
+      "x": 75.0
+    },
+    {
+      "displayType": "rug",
+      "dtype": "numerical",
+      "name": "comorbidities",
+      "x": 123.0
+    }
+  ],
+  "coordinateSystem": {
+    "height": 10.0,
+    "width": 15.0,
+    "xRange": [
+      0.0,
+      150.0
+    ],
+    "yRange": [
+      0.0,
+      100.0
+    ]
+  },
+  "labels": [
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "adult",
+      "va": "center",
+      "x": 27.0,
+      "y": 15.619653179190749
+    },
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "child",
+      "va": "center",
+      "x": 27.0,
+      "y": 52.4628612716763
+    },
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "adolescent",
+      "va": "center",
+      "x": 27.0,
+      "y": 86.84320809248555
+    },
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "female",
+      "va": "center",
+      "x": 75.0,
+      "y": 26.481502890173406
+    },
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "male",
+      "va": "center",
+      "x": 75.0,
+      "y": 74.78150289017341
+    },
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "0",
+      "va": "center",
+      "x": 123.0,
+      "y": 20.73482658959537
+    },
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "1",
+      "va": "center",
+      "x": 123.0,
+      "y": 31.468951279933933
+    },
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "2",
+      "va": "center",
+      "x": 123.0,
+      "y": 42.203075970272494
+    },
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "3",
+      "va": "center",
+      "x": 123.0,
+      "y": 52.93720066061106
+    },
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "4",
+      "va": "center",
+      "x": 123.0,
+      "y": 63.67132535094962
+    },
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "5",
+      "va": "center",
+      "x": 123.0,
+      "y": 74.40545004128819
+    },
+    {
+      "color": "#000",
+      "ha": "center",
+      "rot": 0,
+      "size": 10,
+      "text": "7",
+      "va": "center",
+      "x": 123.0,
+      "y": 95.8736994219653
+    }
+  ],
+  "marks": [
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "axis": "group",
+        "category": "adult",
+        "count": 184.0,
+        "kind": "unibar",
+        "text": "group = adult<br>count: 184"
+      },
+      "id": "uni:group=adult:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          6.600000000000001,
+          27.239306358381498
+        ],
+        [
+          47.4,
+          27.239306358381498
+        ],
+        [
+          47.4,
+          4.0
+        ],
+        [
+          6.600000000000001,
+          4.0
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "axis": "group",
+        "category": "child",
+        "count": 363.0,
+        "kind": "unibar",
+        "text": "group = child<br>count: 363"
+      },
+      "id": "uni:group=child:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          6.600000000000001,
+          75.3864161849711
+        ],
+        [
+          47.4,
+          75.3864161849711
+        ],
+        [
+          47.4,
+          29.53930635838151
+        ],
+        [
+          6.600000000000001,
+          29.53930635838151
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "axis": "group",
+        "category": "adolescent",
+        "count": 145.0,
+        "kind": "unibar",
+        "text": "group = adolescent<br>count: 145"
+      },
+      "id": "uni:group=adolescent:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          6.600000000000001,
+          96.0
+        ],
+        [
+          47.4,
+          96.0
+        ],
+        [
+          47.4,
+          77.68641618497111
+        ],
+        [
+          6.600000000000001,
+          77.68641618497111
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "axis": "gender",
+        "category": "female",
+        "count": 356.0,
+        "kind": "unibar",
+        "text": "gender = female<br>count: 356"
+      },
+      "id": "uni:gender=female:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          54.6,
+          48.96300578034682
+        ],
+        [
+          95.4,
+          48.96300578034682
+        ],
+        [
+          95.4,
+          4.0
+        ],
+        [
+          54.6,
+          4.0
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "axis": "gender",
+        "category": "male",
+        "count": 336.0,
+        "kind": "unibar",
+        "text": "gender = male<br>count: 336"
+      },
+      "id": "uni:gender=male:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          54.6,
+          96.0
+        ],
+        [
+          95.4,
+          96.0
+        ],
+        [
+          95.4,
+          53.56300578034683
+        ],
+        [
+          54.6,
+          53.56300578034683
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "axis": "comorbidities",
+        "category": "0.0",
+        "count": 265.0,
+        "kind": "unibar",
+        "text": "comorbidities = 0.0<br>count: 265"
+      },
+      "id": "uni:comorbidities=0.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          102.6,
+          37.46965317919074
+        ],
+        [
+          143.4,
+          37.46965317919074
+        ],
+        [
+          143.4,
+          4.0
+        ],
+        [
+          102.6,
+          4.0
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "axis": "comorbidities",
+        "category": "1.0",
+        "count": 282.0,
+        "kind": "unibar",
+        "text": "comorbidities = 1.0<br>count: 282"
+      },
+      "id": "uni:comorbidities=1.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          102.6,
+          49.277332782824104
+        ],
+        [
+          143.4,
+          49.277332782824104
+        ],
+        [
+          143.4,
+          13.660569777043762
+        ],
+        [
+          102.6,
+          13.660569777043762
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "axis": "comorbidities",
+        "category": "2.0",
+        "count": 94.0,
+        "kind": "unibar",
+        "text": "comorbidities = 2.0<br>count: 94"
+      },
+      "id": "uni:comorbidities=2.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          102.6,
+          48.13920313790254
+        ],
+        [
+          143.4,
+          48.13920313790254
+        ],
+        [
+          143.4,
+          36.26694880264243
+        ],
+        [
+          102.6,
+          36.26694880264243
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "axis": "comorbidities",
+        "category": "3.0",
+        "count": 32.0,
+        "kind": "unibar",
+        "text": "comorbidities = 3.0<br>count: 32"
+      },
+      "id": "uni:comorbidities=3.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          102.6,
+          54.95800990916597
+        ],
+        [
+          143.4,
+          54.95800990916597
+        ],
+        [
+          143.4,
+          50.91639141205615
+        ],
+        [
+          102.6,
+          50.91639141205615
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "axis": "comorbidities",
+        "category": "4.0",
+        "count": 14.0,
+        "kind": "unibar",
+        "text": "comorbidities = 4.0<br>count: 14"
+      },
+      "id": "uni:comorbidities=4.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          102.6,
+          64.5554293971924
+        ],
+        [
+          143.4,
+          64.5554293971924
+        ],
+        [
+          143.4,
+          62.787221304706854
+        ],
+        [
+          102.6,
+          62.787221304706854
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "axis": "comorbidities",
+        "category": "5.0",
+        "count": 2.0,
+        "kind": "unibar",
+        "text": "comorbidities = 5.0<br>count: 2"
+      },
+      "id": "uni:comorbidities=5.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          102.6,
+          74.53175061932288
+        ],
+        [
+          143.4,
+          74.53175061932288
+        ],
+        [
+          143.4,
+          74.27914946325353
+        ],
+        [
+          102.6,
+          74.27914946325353
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "axis": "comorbidities",
+        "category": "6.0",
+        "count": 1.0,
+        "kind": "unibar",
+        "text": "comorbidities = 6.0<br>count: 1"
+      },
+      "id": "uni:comorbidities=6.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          102.6,
+          85.21457473162677
+        ],
+        [
+          143.4,
+          85.21457473162677
+        ],
+        [
+          143.4,
+          85.06457473162673
+        ],
+        [
+          102.6,
+          85.06457473162673
+        ]
+      ],
+      "z": 20
+    },
+    {
+      "alpha": 0.7,
+      "fill": "#beaed4",
+      "hover": {
+        "axis": "comorbidities",
+        "category": "7.0",
+        "count": 2.0,
+        "kind": "unibar",
+        "text": "comorbidities = 7.0<br>count: 2"
+      },
+      "id": "uni:comorbidities=7.0:s0",
+      "type": "polygon",
+      "vertices": [
+        [
+          102.6,
+          96.0
+        ],
+        [
+          143.4,
+          96.0
+        ],
+        [
+          143.4,
+          95.74739884393065
+        ],
+        [
+          102.6,
+          95.74739884393065
+        ]
+      ],
+      "z": 20
+    }
+  ],
+  "meta": {
+    "highlighted": false,
+    "shape": "rectangle",
+    "weighted": false
+  },
+  "version": 1,
+  "warnings": []
+}

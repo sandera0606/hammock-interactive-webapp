@@ -50,6 +50,47 @@ CONFIGS = {
             "display_type": {"bill_length_mm": "box", "flipper_length_mm": "violin"},
         },
     },
+    # --- M2: configs covering the display types / option paths the GUI exposes ---
+    # group + gender are categorical; comorbidities is numeric (left at default box).
+    "asthma_bar": {
+        "csv": "data_asthma.csv",
+        "dropna": ["group", "gender", "comorbidities"],
+        "options": {
+            "var": ["group", "gender", "comorbidities"],
+            "display_type": {"group": "stacked_bar", "gender": "bar"},
+        },
+    },
+    "asthma_snapshot": {
+        # snapshot preset: unibars only (no connectors), tall/wide bars
+        "csv": "data_asthma.csv",
+        "dropna": ["group", "gender", "comorbidities"],
+        "options": {
+            "var": ["group", "gender", "comorbidities"],
+            "uni_vfill": 0.95,
+            "uni_hfill": 0.85,
+            "connector_fraction": 0.0,
+        },
+    },
+    "penguins_rug": {
+        "csv": "data_penguins.csv",
+        "dropna": ["species", "bill_length_mm", "flipper_length_mm"],
+        "options": {
+            "var": ["species", "bill_length_mm", "flipper_length_mm"],
+            "display_type": {"bill_length_mm": "rug", "flipper_length_mm": "rug"},
+        },
+    },
+    "penguins_expr_highlight": {
+        # highlight by a numeric range expression (vs. the categorical-label
+        # highlight already covered by asthma_highlight)
+        "csv": "data_penguins.csv",
+        "dropna": ["species", "bill_length_mm", "flipper_length_mm"],
+        "options": {
+            "var": ["species", "bill_length_mm", "flipper_length_mm"],
+            "display_type": {"bill_length_mm": "box", "flipper_length_mm": "violin"},
+            "hi_var": "bill_length_mm",
+            "hi_value": "x>45",
+        },
+    },
 }
 
 

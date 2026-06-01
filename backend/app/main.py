@@ -11,6 +11,7 @@ so nothing is mounted and Vite's dev server proxies /api here instead.
 """
 from __future__ import annotations
 
+import io
 import os
 import sys
 from pathlib import Path
@@ -20,8 +21,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from . import data_inference, validation
 from .capture import IncompatibleHammockVersion, capture_scene
-from .schemas import PlotRequest
+from .schemas import CsvUpload, ExpressionRequest, PlotRequest
 from .version import get_hammock_pin
 
 # version.py -> app -> backend -> repo root
@@ -100,15 +102,42 @@ def get_sample(name: str) -> dict:
     df = pd.read_csv(DATA_DIR / sample["csv"])
     if sample.get("dropna"):
         df = df.dropna(subset=sample["dropna"]).reset_index(drop=True)
-    # NaN -> None so the JSON is valid (NaN is not valid JSON).
-    data = df.where(pd.notnull(df), None).to_dict(orient="records")
     return {
         "name": name,
         "label": sample["label"],
-        "columns": list(df.columns),
-        "data": data,
+        "columns": [str(c) for c in df.columns],
+        "data": data_inference.dataframe_to_records(df),
+        "meta": data_inference.column_metadata(df),
         "defaults": sample["defaults"],
     }
+
+
+@app.post("/api/data/upload")
+def upload_data(req: CsvUpload) -> dict:
+    """Parse an uploaded CSV (sent as text) into rows + column metadata.
+
+    Stateless: the parsed rows return to the client, which keeps them and ships
+    them back on every /api/plot call. `meta` carries per-column dtype, formatted
+    unique values, and weight-candidacy so the GUI can populate its controls.
+    """
+    try:
+        df = pd.read_csv(io.StringIO(req.content))
+    except Exception as exc:  # pandas raises a variety of parser errors
+        raise HTTPException(status_code=422, detail=f"could not parse CSV: {exc}") from exc
+    if df.empty or len(df.columns) == 0:
+        raise HTTPException(status_code=422, detail="CSV has no rows or no columns")
+    return {
+        "name": req.filename or "uploaded.csv",
+        "columns": [str(c) for c in df.columns],
+        "data": data_inference.dataframe_to_records(df),
+        "meta": data_inference.column_metadata(df),
+    }
+
+
+@app.post("/api/validate-expression")
+def validate_expression(req: ExpressionRequest) -> dict:
+    """Whether a highlight expression is a valid regex / numeric range."""
+    return {"valid": validation.validate_expression(req.expr)}
 
 
 @app.post("/api/plot")

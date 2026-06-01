@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 
-EXPECTED_PIN = "925520b"
+EXPECTED_PIN = "deae4c2"
 
 client = TestClient(app)
 

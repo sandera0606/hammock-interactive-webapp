@@ -10,7 +10,7 @@ Status legend: `[ ]` todo · `[~]` in progress · `[x]` done. Technical detail f
 
 ## M0 — Scaffolding (DONE)
 - [x] Repo layout (`backend/`, `frontend/`, `vendor/`)
-- [x] `hammock_plot` as git submodule pinned to SHA `925520b`, `-e` install (note: that pin's `pyproject.toml` omits `scipy`, a real runtime dep — `backend/requirements.txt` declares it explicitly)
+- [x] `hammock_plot` as git submodule pinned to SHA `deae4c2` (bumped from `925520b` on 2026-05-31), `-e` install. (`deae4c2`'s `pyproject.toml` now declares `scipy`; `backend/requirements.txt` also lists it explicitly so it's pinned independently of submodule bumps.)
 - [x] FastAPI skeleton; `GET /api/health` returns the pinned SHA (`HAMMOCK_PIN` env override for containers without git)
 - [x] Vite + React + TS skeleton with `/api` proxy → :8000; health page renders the pin
 - [x] Confirm `Hammock(df).plot(display_figure=False)` runs headless under `MPLBACKEND=Agg` from the backend
@@ -28,15 +28,15 @@ Status legend: `[ ]` todo · `[~]` in progress · `[x]` done. Technical detail f
 - **Exit:** categorical + numeric datasets interactive; box/violin pixel-faithful; correct hover — engine + API + golden tests done; **awaiting user's browser confirmation of the render.**
 
 ## M2 — Full options GUI ("b")
-- [ ] Pydantic `PlotOptions` (every `plot()` param) + `optionsToRequest.ts`
-- [ ] `POST /api/data/upload` (dtype + weight-var inference), sample loader, preview table — **stateless**: parsed data returns to the client and rides along on each `/api/plot` request (no server-side dataset store; multi-user + horizontally scalable). Large-dataset object-storage upload is a later seam.
-- [ ] Option tabs mirroring `hammock_settings.py`: Presets, Variables, General, Highlighting, Weights, Unibar-Specific
-- [ ] Highlighting / weights / value_order / missing / same_scale / shape / label_options end-to-end
-- [ ] `/api/validate-expression` (reuse library `validate_expression`)
-- [ ] Debounced auto-replot + explicit Apply; keep last good scene while recomputing
-- [ ] All display types end-to-end: rugplot / stacked bar / bar chart / box / violin / beanplots (all captured already)
-- [ ] Golden tests extended (snapshot + numeric/box/violin configs)
-- **Exit:** visual parity with the Streamlit app for matching settings
+- [x] Pydantic `PlotOptions` (every `plot()` param) + `optionsToRequest.ts` (the analog of `utils.plot(...)`: `/100` fill/alpha conversions, omit highlight fields when off) — `frontend/src/lib/{defaults,optionsState,optionsToRequest}.ts`
+- [x] `POST /api/data/upload` (CSV sent as text → dtype + weight-var inference via `backend/app/data_inference.py`), sample loader (now returns `meta`), preview table — **stateless**: parsed data returns to the client and rides along on each `/api/plot` request (no server-side dataset store). Large-dataset object-storage upload is a later seam.
+- [x] Options GUI — **design-led, not a Streamlit clone** (user's call): plot-as-hero split layout, data-first column chips with dtype glyphs, presets segmented control, progressive-disclosure sections (Variables · Appearance · Highlighting · Weights · Advanced) with reveal-on-enable, per-variable settings in context. Same control set/semantics as `hammock_settings.py`. "Scientific studio" theme (Fraunces/Hanken Grotesk/IBM Plex Mono; warm paper + plum accent; native controls, no new deps).
+- [x] Highlighting / weights / value_order / missing / same_scale / shape / label_options end-to-end
+- [x] `/api/validate-expression` (reuses library `validate_expression` via `backend/app/validation.py`); wired to the highlight expression field (debounced)
+- [x] Debounced auto-replot (~400ms) + explicit Apply + Auto-update toggle; keep last good scene while recomputing
+- [x] All display types end-to-end: rugplot / stacked bar / bar chart / box / violin (golden-tested)
+- [x] Golden tests extended: `asthma_bar`, `asthma_snapshot`, `penguins_rug`, `penguins_expr_highlight` (32/32 backend tests pass)
+- **Exit:** visual parity with the Streamlit app for matching settings — engine/API/tests done; **awaiting user's browser confirmation of the GUI** (run `dev.ps1`, or `uvicorn app.main:app` to serve the built SPA at `:8000`).
 
 ## M3 — Polish + stretch
 - [ ] Drag-to-reorder axes (`@dnd-kit`) → reorder `var` → refetch

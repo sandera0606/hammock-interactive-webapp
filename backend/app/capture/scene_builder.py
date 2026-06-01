@@ -28,6 +28,32 @@ _Z_CONNECTOR = 10
 _Z_UNIBAR = 20
 _Z_PRIM_BASE = 30
 
+# Warning categories that are library/dependency-internal noise, not actionable
+# feedback about the user's data or plot. Deprecation/Future/Pending warnings
+# (e.g. pandas `is_categorical_dtype is deprecated`, emitted from hammock_plot's
+# own code) are for *us* on a pin bump — they must not surface in the user-facing
+# scene `warnings[]`. Everything else (UserWarning etc.) still passes through.
+_INTERNAL_WARNING_CATEGORIES = (DeprecationWarning, FutureWarning, PendingDeprecationWarning)
+
+
+def _user_facing_warnings(caught: list) -> list[str]:
+    """User-relevant warning texts only; drop dependency deprecation noise."""
+    out: list[str] = []
+    seen: set[str] = set()
+    for w in caught:
+        if w.message is None:
+            continue
+        if isinstance(w.message, _INTERNAL_WARNING_CATEGORIES) or (
+            isinstance(w.category, type)
+            and issubclass(w.category, _INTERNAL_WARNING_CATEGORIES)
+        ):
+            continue
+        text = str(w.message)
+        if text not in seen:  # de-dupe identical messages (one per row otherwise)
+            seen.add(text)
+            out.append(text)
+    return out
+
 
 def _coordinate_system(recorder: Any, fig: Any) -> dict:
     xr = recorder.lims.get("x")
@@ -252,7 +278,7 @@ def build_scene(
     marks += _emit_instrument_marks(recorder, fig)
     marks.sort(key=lambda m: m["z"])
 
-    warnings_out = [str(w.message) for w in warning_msgs]
+    warnings_out = _user_facing_warnings(warning_msgs)
 
     return {
         "version": 1,

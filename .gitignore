@@ -13,4 +13,4 @@ frontend/dist/
 .DS_Store
 
 # Claude Code — personal autopilot settings (not shared)
-.claude/settings.json
+.claude/

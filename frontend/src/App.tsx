@@ -1,167 +1,310 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import HammockPlot from "./components/HammockPlot";
+import DataPanel from "./components/DataPanel";
+import OptionsRail from "./components/OptionsRail";
+import { Toggle } from "./components/controls";
 import {
   fetchScene,
   getSample,
   listSamples,
+  uploadCsv,
+  type DatasetPayload,
   type PlotOptions,
-  type Row,
   type SampleInfo,
 } from "./lib/api";
+import { uiToPlotOptions } from "./lib/optionsToRequest";
+import { defaultWidth } from "./lib/defaults";
+import {
+  applyPreset,
+  defaultPerUnibar,
+  ensurePerUnibar,
+  initialUiState,
+  type ColumnMeta,
+  type Dataset,
+  type PerUnibar,
+  type Preset,
+  type UiState,
+} from "./lib/optionsState";
 import type { Scene } from "./lib/scene";
 
-type Status = "loading" | "ready" | "error";
+const DEBOUNCE_MS = 400;
+const MIN_VARS = 2; // a hammock needs at least two axes to connect
+
+/** Build a starting UiState for a freshly loaded dataset, honouring a sample's
+ *  default option config (var selection, display types, highlight) when present. */
+function seedUi(ds: Dataset, defaults?: PlotOptions): UiState {
+  const ui = initialUiState();
+  const metaByName = Object.fromEntries((ds.meta ?? []).map((m) => [m.name, m]));
+  const vars = (defaults?.var ?? []).filter((v) => metaByName[v]);
+  ui.var = vars;
+  ui.perUnibar = {};
+  for (const v of vars) ui.perUnibar[v] = defaultPerUnibar(metaByName[v]);
+  if (defaults?.display_type) {
+    for (const [k, dt] of Object.entries(defaults.display_type)) {
+      if (ui.perUnibar[k]) ui.perUnibar[k].displayType = dt;
+    }
+  }
+  if (defaults?.hi_var && metaByName[defaults.hi_var]) {
+    ui.highlight = true;
+    ui.hiVar = defaults.hi_var;
+    if (Array.isArray(defaults.hi_value)) {
+      ui.hiType = "labels";
+      ui.hiValues = defaults.hi_value.map(String);
+    } else if (typeof defaults.hi_value === "string") {
+      ui.hiType = "expression";
+      ui.hiExpression = defaults.hi_value;
+    }
+  }
+  ui.width = defaultWidth(vars.length);
+  return ui;
+}
+
+function toDataset(p: DatasetPayload): Dataset {
+  return { name: p.label ?? p.name, columns: p.columns, rows: p.data, meta: p.meta };
+}
 
 export default function App() {
   const [samples, setSamples] = useState<SampleInfo[]>([]);
-  const [active, setActive] = useState<string | null>(null);
-  const [scene, setScene] = useState<Scene | null>(null);
-  const [status, setStatus] = useState<Status>("loading");
-  const [error, setError] = useState<string>("");
-  const abortRef = useRef<AbortController | null>(null);
+  const [activeSample, setActiveSample] = useState<string | null>(null);
+  const [dataset, setDataset] = useState<Dataset | null>(null);
+  const [ui, setUi] = useState<UiState>(initialUiState);
 
-  // Discover bundled samples once, then auto-load the first.
+  const [scene, setScene] = useState<Scene | null>(null);
+  const [busy, setBusy] = useState(false); // plot fetch in flight
+  const [dataBusy, setDataBusy] = useState(false); // dataset load in flight
+  const [error, setError] = useState("");
+  const [auto, setAuto] = useState(true);
+  const [theme, setTheme] = useState<"light" | "dark">(
+    () => (document.documentElement.dataset.theme === "dark" ? "dark" : "light"),
+  );
+
+  const toggleTheme = useCallback(() => {
+    setTheme((t) => {
+      const next = t === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = next;
+      try {
+        localStorage.setItem("hammock-theme", next);
+      } catch {
+        /* ignore storage failures (private mode) */
+      }
+      return next;
+    });
+  }, []);
+
+  const metaByName = useMemo<Record<string, ColumnMeta>>(
+    () => (dataset?.meta ? Object.fromEntries(dataset.meta.map((m) => [m.name, m])) : {}),
+    [dataset],
+  );
+  const options = useMemo(() => uiToPlotOptions(ui, metaByName), [ui, metaByName]);
+  const ready = !!dataset && options.var.length >= MIN_VARS;
+
+  // refs so the imperative fetch always sees the latest values
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
+  const rowsRef = useRef(dataset?.rows ?? []);
+  rowsRef.current = dataset?.rows ?? [];
+  const plotAbort = useRef<AbortController | null>(null);
+
+  const doFetch = useCallback(() => {
+    const opts = optionsRef.current;
+    if (opts.var.length < MIN_VARS) return;
+    plotAbort.current?.abort();
+    const ac = new AbortController();
+    plotAbort.current = ac;
+    setBusy(true);
+    setError("");
+    fetchScene(rowsRef.current, opts, ac.signal)
+      .then((s) => {
+        setScene(s);
+        setBusy(false);
+      })
+      .catch((e) => {
+        if (ac.signal.aborted) return;
+        setError(e instanceof Error ? e.message : String(e));
+        setBusy(false);
+      });
+  }, []);
+
+  // discover samples once, then auto-load the first
   useEffect(() => {
     listSamples()
       .then((s) => {
         setSamples(s);
-        if (s.length) setActive(s[0].name);
-        else setStatus("error");
+        if (s.length) void loadSample(s[0].name);
       })
-      .catch((e) => {
-        setError(String(e));
-        setStatus("error");
-      });
+      .catch((e) => setError(String(e)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Whenever the active sample changes: fetch its rows, then the scene. The SPA
-  // sends the data + options to the stateless backend on every plot call.
-  useEffect(() => {
-    if (!active) return;
-    abortRef.current?.abort();
-    const ac = new AbortController();
-    abortRef.current = ac;
-    setStatus("loading");
+  const loadSample = async (name: string) => {
+    setDataBusy(true);
     setError("");
+    setActiveSample(name);
+    try {
+      const payload = await getSample(name);
+      const ds = toDataset(payload);
+      setDataset(ds);
+      setUi(seedUi(ds, payload.defaults));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setDataBusy(false);
+    }
+  };
 
-    (async () => {
-      const sample = await getSample(active);
-      const options: PlotOptions = sample.defaults;
-      const data: Row[] = sample.data;
-      const next = await fetchScene(data, options, ac.signal);
-      setScene(next);
-      setStatus("ready");
-    })().catch((e) => {
-      if (ac.signal.aborted) return;
-      setError(String(e instanceof Error ? e.message : e));
-      setStatus("error");
-    });
+  const handleUpload = async (content: string, filename: string) => {
+    setDataBusy(true);
+    setError("");
+    setActiveSample(null);
+    try {
+      const payload = await uploadCsv(content, filename);
+      const ds = toDataset(payload);
+      setDataset(ds);
+      setUi(seedUi(ds)); // no defaults: user picks variables
+      setScene(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setDataBusy(false);
+    }
+  };
 
-    return () => ac.abort();
-  }, [active]);
+  // debounced auto-replot
+  useEffect(() => {
+    if (!auto || !ready) return;
+    const t = setTimeout(doFetch, DEBOUNCE_MS);
+    return () => clearTimeout(t);
+  }, [options, ready, auto, doFetch]);
+
+  // state updaters threaded to the rail
+  const patch = useCallback((p: Partial<UiState>) => setUi((s) => ({ ...s, ...p })), []);
+  const patchUnibar = useCallback(
+    (name: string, p: Partial<PerUnibar>) =>
+      setUi((s) => ({
+        ...s,
+        perUnibar: { ...s.perUnibar, [name]: { ...s.perUnibar[name], ...p } },
+      })),
+    [],
+  );
+  const setVar = useCallback(
+    (v: string[]) =>
+      setUi((s) => {
+        let next = ensurePerUnibar({ ...s, var: v }, metaByName);
+        if (!s.widthTouched) next = { ...next, width: defaultWidth(v.length) };
+        // keep same_scale / hiVar consistent with the new selection
+        next.sameScale = next.sameScale.filter((x) => v.includes(x));
+        return next;
+      }),
+    [metaByName],
+  );
+  const setPreset = useCallback((p: Preset) => setUi((s) => applyPreset(s, p)), []);
 
   return (
-    <div
-      style={{
-        fontFamily: "system-ui, sans-serif",
-        display: "flex",
-        flexDirection: "column",
-        height: "100vh",
-        margin: 0,
-      }}
-    >
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 16,
-          padding: "0.75rem 1.25rem",
-          borderBottom: "1px solid #eee",
-        }}
-      >
-        <strong style={{ fontSize: "1.05rem" }}>Hammock Plot — Interactive</strong>
-        <nav style={{ display: "flex", gap: 8 }}>
-          {samples.map((s) => (
-            <button
-              key={s.name}
-              onClick={() => setActive(s.name)}
-              style={{
-                padding: "0.35rem 0.8rem",
-                borderRadius: 6,
-                border: "1px solid #ddd",
-                background: s.name === active ? "#2563eb" : "white",
-                color: s.name === active ? "white" : "#333",
-                cursor: "pointer",
-                fontSize: "0.85rem",
-                fontWeight: 600,
-              }}
-            >
-              {s.label}
-            </button>
-          ))}
-        </nav>
-        <span style={{ marginLeft: "auto", color: "#999", fontSize: "0.8rem" }}>
-          pin {scene?.hammockPin?.short ?? "—"}
-        </span>
+    <div className="app">
+      <header className="topbar">
+        <div className="brand">
+          <h1>Hammock</h1>
+          <span className="tag">interactive studio</span>
+        </div>
+        <div className="spacer" />
+        <button
+          className="theme-toggle"
+          onClick={toggleTheme}
+          title={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+          aria-label="Toggle colour theme"
+        >
+          {theme === "dark" ? "☀" : "☾"}
+        </button>
+        <Toggle label="Auto-update" checked={auto} onChange={setAuto} />
+        <button
+          className="btn primary"
+          disabled={!ready || busy}
+          onClick={doFetch}
+          title={ready ? "Redraw now" : "Select at least two variables"}
+        >
+          {busy ? "Plotting…" : "Apply"}
+        </button>
+        <span className="pin">pin {scene?.hammockPin?.short ?? "—"}</span>
       </header>
 
       {scene && scene.warnings.length > 0 && (
-        <div
-          style={{
-            background: "#fffbe6",
-            borderBottom: "1px solid #ffe58f",
-            padding: "0.4rem 1.25rem",
-            fontSize: "0.8rem",
-            color: "#7a5b00",
-          }}
-        >
-          {scene.warnings.length} warning(s): {scene.warnings.join(" · ")}
+        <div className="warnstrip">
+          <span className="wlabel">{scene.warnings.length} warning(s):</span>
+          <span>{scene.warnings.join(" · ")}</span>
         </div>
       )}
 
-      <main style={{ position: "relative", flex: 1, minHeight: 0 }}>
-        {status === "error" && (
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              display: "grid",
-              placeItems: "center",
-              color: "#b00",
-              padding: "2rem",
-              textAlign: "center",
-            }}
-          >
-            <div>
-              <strong>Could not render plot.</strong>
-              <div style={{ marginTop: 8, color: "#822" }}>{error}</div>
-            </div>
+      <div className="body">
+        <aside className="rail">
+          <div className="section flush">
+            <DataPanel
+              samples={samples}
+              dataset={dataset}
+              activeSample={activeSample}
+              onPickSample={(n) => void loadSample(n)}
+              onUploadText={(c, f) => void handleUpload(c, f)}
+              busy={dataBusy}
+            />
           </div>
-        )}
 
-        {status === "loading" && (
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              display: "grid",
-              placeItems: "center",
-              color: "#888",
-              pointerEvents: "none",
-              zIndex: 2,
-            }}
-          >
-            Rendering…
-          </div>
-        )}
+          {dataset && (
+            <OptionsRail
+              ui={ui}
+              meta={dataset.meta}
+              patch={patch}
+              patchUnibar={patchUnibar}
+              setVar={setVar}
+              setPreset={setPreset}
+            />
+          )}
+        </aside>
 
-        {scene && status !== "error" && (
-          <div style={{ position: "absolute", inset: 0, opacity: status === "loading" ? 0.4 : 1 }}>
-            <HammockPlot scene={scene} />
+        <main className="stage">
+          <div className="plot-card">
+            {busy && (
+              <div className="updating">
+                <span className="spinner" /> updating
+              </div>
+            )}
+
+            {scene && (
+              <div className={"plot-host" + (busy ? " dim" : "")}>
+                <HammockPlot scene={scene} />
+              </div>
+            )}
+
+            {!scene && (
+              <div className="overlay">
+                <div>
+                  <div className="title">
+                    {dataBusy ? "Loading data…" : ready ? "Drawing…" : "Build a plot"}
+                  </div>
+                  <div className="sub">
+                    {error
+                      ? error
+                      : !dataset
+                        ? "Pick a sample or drop a CSV in the left panel to begin."
+                        : "Select two or more variables to draw your hammock plot."}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {scene && error && (
+              <div className="overlay error block">
+                <div>
+                  <div className="title">Could not redraw</div>
+                  <div className="sub">{error}</div>
+                  <button className="btn sm" style={{ marginTop: 14 }} onClick={() => setError("")}>
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
