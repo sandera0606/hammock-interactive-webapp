@@ -11,6 +11,7 @@ frontend/dist/
 # Matplotlib / misc
 *.log
 .DS_Store
+*_tmp.txt
 
 # Claude Code — personal autopilot settings (not shared)
 .claude/

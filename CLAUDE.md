@@ -4,7 +4,7 @@ Purpose, scope, and milestones live in GOAL.md / ROADMAP.md. This file is the **
 
 ## The core trick: pure-wrapper capture (run the library, record what it draws)
 
-We must NOT edit `hammock_plot`. We run its **real** drawing code and replay the exact matplotlib primitives it emits as plotly traces — pixel-faithful, no geometry/stat reinvention. Verified against `../../hammock_plot/hammock_plot/` and proven in `spike/spike.py` + `spike/spike3.py`.
+We must NOT edit `hammock_plot`. We run its **real** drawing code and replay the exact matplotlib primitives it emits as plotly traces — pixel-faithful, no geometry/stat reinvention. Verified against `../../hammock_plot/hammock_plot/`; the approach was first proven in throwaway spikes (since removed — the production capture lives in `backend/app/capture/`).
 
 `Hammock(df).plot(..., display_figure=False)` runs the full layout, draws, returns `None`. The library draws via only ~6 Axes primitives, captured **two composing ways**:
 
@@ -43,9 +43,9 @@ Stable `id`s later enable editor mode "a" (clicked mark → option delta).
 3. All library-internal coupling lives in `backend/app/capture/` ONLY. Fix drift in one place.
 
 ## Frontend rendering notes
-- Each `mark` → one plotly `scatter`, in `z` order: `polygon`/`rect`→`fill:'toself'` (rect = closed 5-pt path; outline-only if no face); `line`→`mode:'lines'`; `marker`→`mode:'markers'`. Hover via `text`/`customdata` + `hovertemplate` + `hoveron:'fills'` (proven per-polygon in the spike, one trace per hoverable mark; batch non-hover marks later for perf).
+- Each `mark` → one plotly `scatter`, in `z` order: `polygon`/`rect`→`fill:'toself'` (rect = closed 5-pt path; outline-only if no face); `line`→`mode:'lines'`; `marker`→`mode:'markers'`. Hover via `text`/`customdata` + `hovertemplate` + `hoveron:'fills'` (per-polygon, one trace per hoverable mark; batch non-hover marks later for perf).
 - `labels[]` → annotations; axis name annotations at bottom; `xaxis/yaxis.visible:false`, ranges = scene `coordinateSystem`; `scrollZoom` + pan.
-- Box/violin are pixel-faithful marks (NOT native go.Box/go.Violin) — see `spike/spike3.py` for the exact mark→trace mapping. A `native` mode is a possible future toggle.
+- Box/violin are pixel-faithful marks (NOT native go.Box/go.Violin) — the exact mark→trace mapping lives in `frontend/src/lib/sceneToTraces.ts` + `HammockPlot.tsx`. A `native` mode is a possible future toggle.
 - Options GUI mirrors `../hammock-plot-webapp/hammock_settings.py` + `utils.py` exactly (full param set, presets, `/100` conversions for alpha/fills, omit highlight fields when off). `optionsToRequest.ts` is the analog of `utils.plot(...)`.
 - Drag-reorder axes = reorder `var` + refetch (whole pipeline reused).
 
@@ -58,7 +58,7 @@ Params to expose: `var, weights, value_order, numerical_var_levels, display_type
 - **Pinned SHA in the container:** no git inside the image, so `version.py` reads `HAMMOCK_PIN` (env, set in the `Dockerfile`) first, then falls back to `git`/gitdir for local dev. Bump it in the `Dockerfile` when the submodule pin moves.
 - **Capture is NOT concurrency-safe** (the user's deployed-webapp constraint): the shim patches **global** module state (`figure.Rectangle/Parallelogram`, `main.Figure`, `pyplot.subplots`) and Agg isn't thread-safe. Two captures in one process collide. → **Serialize each capture with a per-process lock**, run **Cloud Run concurrency=1 per instance**, and scale out by instances/worker processes, never threads.
 - **Backend stays stateless** — the SPA sends `data + options` on every `/api/plot` call; no server-side dataset store (multi-user + horizontally scalable). Large-dataset object-storage upload is a later seam.
-- Deploy: `git submodule update --init` (so the upload has the lib) → `gcloud run deploy --source .`. `.gcloudignore`/`.dockerignore` keep `.venv`/`node_modules`/`dist`/`.git`/`spike` out of the build.
+- Deploy: `git submodule update --init` (so the upload has the lib) → `gcloud run deploy --source .`. `.gcloudignore`/`.dockerignore` keep `.venv`/`node_modules`/`dist`/`.git` out of the build.
 
 ## Dev commands (Windows / PowerShell)
 - Backend: `$env:MPLBACKEND="Agg"; uvicorn app.main:app --reload --port 8000`

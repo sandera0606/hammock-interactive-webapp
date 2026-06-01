@@ -12,5 +12,4 @@ frontend/node_modules/
 frontend/dist/
 vendor/**/venv/
 
-spike/
 dev.ps1

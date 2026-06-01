@@ -447,6 +447,70 @@ button {
   }
 }
 
+/* ----- First-open splash ------------------------------------------------- */
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  opacity: 1;
+  transition: opacity 0.45s ease;
+}
+.splash.hide {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition:
+    opacity 0.45s ease,
+    visibility 0s linear 0.45s;
+}
+.splash-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: splash-rise 0.5s ease both;
+}
+.splash-mark {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+}
+.splash-spinner {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 3px solid var(--accent-line);
+  border-top-color: var(--accent);
+  animation: spin 0.7s linear infinite;
+}
+.splash-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+}
+.splash-sub {
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+  margin-top: -6px;
+}
+@keyframes splash-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* ----- Data source card (segregated "step 1" zone) ----------------------- */
 .data-card {
   background: var(--surface);

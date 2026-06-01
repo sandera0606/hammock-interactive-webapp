@@ -13,7 +13,6 @@ frontend/dist/
 vendor/**/venv/
 
 # Not needed in the image.
-spike/
 *.md
 dev.ps1
 .gitignore

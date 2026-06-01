@@ -40,7 +40,7 @@ const MIN_VARS = 2; // a hammock needs at least two axes to connect
 // Bounds for the drag-resizable control rail (px).
 const RAIL_MIN = 280;
 const RAIL_MAX = 720;
-const RAIL_DEFAULT = 348;
+const RAIL_DEFAULT = 420;
 
 function loadRailWidth(): number {
   try {
@@ -116,6 +116,18 @@ export default function App() {
   const [railWidth, setRailWidth] = useState<number>(loadRailWidth);
   const [resizing, setResizing] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
+
+  // Full-screen splash on first open: stays up until the first plot is drawn
+  // (or the boot sequence settles into an error), then fades out. A safety
+  // timeout guarantees it never hangs if the auto-load stalls.
+  const [booting, setBooting] = useState(true);
+  useEffect(() => {
+    if (scene || error) setBooting(false);
+  }, [scene, error]);
+  useEffect(() => {
+    const t = setTimeout(() => setBooting(false), 8000);
+    return () => clearTimeout(t);
+  }, []);
 
   // Drag the rail's right border to resize it; persist the chosen width.
   const startResize = useCallback((e: ReactPointerEvent) => {
@@ -305,6 +317,16 @@ export default function App() {
 
   return (
     <div className="app">
+      <div className={"splash" + (booting ? "" : " hide")} aria-hidden={!booting}>
+        <div className="splash-inner">
+          <div className="splash-mark">
+            <span className="splash-spinner" />
+          </div>
+          <div className="splash-title">Hammock Plot</div>
+          <div className="splash-sub">Loading…</div>
+        </div>
+      </div>
+
       <header className="topbar">
         <div className="brand">
           <h1>Hammock Plot</h1>
