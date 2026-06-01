@@ -139,7 +139,7 @@ def _emit_painter_marks(recorder: Any, fig: Any, hi_label: str | None) -> list[d
                 order = [("?", "?")] * len(call["shapes"])
             for pair_idx, ((lv, rv), shape) in enumerate(zip(order, call["shapes"])):
                 hover_text = (
-                    f"{lname}={lv} → {rname}={rv}<br>"
+                    f"{lname}={lv} & {rname}={rv}<br>"
                     f"{enrich.breakdown(shape['colors'], shape['weights'], hi_label)}"
                 )
                 for fi, f in enumerate(_visible_fills(shape)):
@@ -175,8 +175,17 @@ def _visible_fills(shape: dict) -> list[dict]:
     return out
 
 
-def _box_violin_hover(fig: Any, prims: list[dict]) -> dict:
-    """Map prim `seq` -> hover payload for box/violin geometry."""
+def _box_violin_hover(fig: Any, prims: list[dict], hi_var: Any, hi_value: Any) -> dict:
+    """Map prim `seq` -> hover payload for box/violin geometry.
+
+    Highlighting draws one box per color group side-by-side on an axis. We split
+    each unibar's prims into per-box groups (`enrich.split_box_groups`) so every
+    box gets its own median/Q1–Q3 hover — not just the widest one — and label
+    each box with its highlight group when more than one is present. The hover is
+    attached to the box rect (the filled box for `display=box`) and to the
+    nearest violin body polygon (the filled envelope for `display=violin`), so
+    hovering either surface shows that box's stats.
+    """
     buckets = enrich.bucket_prims_by_unibar(fig, prims)
     by_name = {u.name: u for u in getattr(fig, "unibars", [])}
     seq_hover: dict[int, dict] = {}
@@ -188,24 +197,47 @@ def _box_violin_hover(fig: Any, prims: list[dict]) -> dict:
         invert = enrich.make_inverter(uni)
         if invert is None:
             continue
-        stats = enrich.box_stats(bucket, invert)
-        if not stats:
-            continue
-        hover = {"kind": "box", "axis": name, **stats}
-        # Attach to the box rect and (for violins) the largest body polygon, so
-        # hovering either the box or the violin envelope shows the stats.
-        rects = [p for p in bucket if p["kind"] == "rect"]
-        if rects:
-            seq_hover[max(rects, key=lambda r: abs(r["y1"] - r["y0"]))["seq"]] = hover
+        boxes = enrich.split_box_groups(bucket)
         polys = [p for p in bucket if p["kind"] == "poly"]
-        if polys:
-            seq_hover[max(polys, key=lambda p: len(p["x"]))["seq"]] = hover
+        multi = len(boxes) > 1
+        uni_colors = list(getattr(uni, "colors", []) or [])
+        box_centers: list[tuple[float, dict]] = []  # (center_x, hover)
+
+        for box in boxes:
+            rect = box["rect"]
+            stats = enrich.box_stats([rect, *box["lines"]], invert)
+            if not stats:
+                continue
+            hover = {"kind": "box", "axis": name, **stats}
+            if multi:
+                idx = enrich.color_group_index(rect.get("face") or rect.get("edge"), uni_colors)
+                label = enrich.group_label(idx, hi_var, hi_value)
+                if label:
+                    hover["group"] = label
+            seq_hover[rect["seq"]] = hover
+            box_centers.append(((rect["x0"] + rect["x1"]) / 2.0, hover))
+
+        # Attach each violin body polygon to the nearest box's hover (split
+        # violins have one body per side; full violins have a single body). The
+        # violin inner box is outline-only (face=None), so its group color lives
+        # on the filled body polygon — derive the label from the poly here.
+        for poly in polys:
+            if not poly.get("x") or not box_centers:
+                continue
+            pcx = (min(poly["x"]) + max(poly["x"])) / 2.0
+            _, hover = min(box_centers, key=lambda bc: abs(bc[0] - pcx))
+            if multi and "group" not in hover:
+                idx = enrich.color_group_index(poly.get("color"), uni_colors)
+                label = enrich.group_label(idx, hi_var, hi_value)
+                if label:
+                    hover["group"] = label
+            seq_hover[poly["seq"]] = hover
     return seq_hover
 
 
-def _emit_instrument_marks(recorder: Any, fig: Any) -> list[dict]:
+def _emit_instrument_marks(recorder: Any, fig: Any, hi_var: Any, hi_value: Any) -> list[dict]:
     """Box/violin bodies, rects, lines, fliers — replayed verbatim."""
-    seq_hover = _box_violin_hover(fig, recorder.prims)
+    seq_hover = _box_violin_hover(fig, recorder.prims, hi_var, hi_value)
     marks: list[dict] = []
     for p in recorder.prims:
         z = _Z_PRIM_BASE + float(p.get("z", 0))
@@ -275,7 +307,7 @@ def build_scene(
         hi_label = f"{hi_var}={', '.join(str(v) for v in vals)}"
 
     marks = _emit_painter_marks(recorder, fig, hi_label)
-    marks += _emit_instrument_marks(recorder, fig)
+    marks += _emit_instrument_marks(recorder, fig, hi_var, hi_value)
     marks.sort(key=lambda m: m["z"])
 
     warnings_out = _user_facing_warnings(warning_msgs)

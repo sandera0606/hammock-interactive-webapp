@@ -12,6 +12,7 @@ import type { Hover, Label, Mark, Scene } from "./scene";
 function hoverText(h: Hover): string {
   if (h.kind === "box") {
     const parts = [`<b>${h.axis}</b>`];
+    if (h.group) parts.push(h.group);
     if (h.median !== undefined) parts.push(`median: ${h.median}`);
     parts.push(`Q1–Q3: ${h.q1} – ${h.q3}`);
     return parts.join("<br>");
@@ -41,9 +42,10 @@ function polygonTrace(
   };
   if (hover) {
     trace.hoveron = "fills";
-    trace.text = hoverText(hover);
-    trace.hovertemplate = "%{text}<extra></extra>";
-    trace.hoverlabel = { bgcolor: "#222", font: { color: "#fff" } };
+    trace.name = ""; // hoveron:'fills' bypasses hovertemplate's <extra></extra>, so
+    trace.text = hoverText(hover); // the trace name ("trace N") would otherwise leak —
+    trace.hovertemplate = "%{text}<extra></extra>"; // namelength:0 is what suppresses it
+    trace.hoverlabel = { bgcolor: "#222", font: { color: "#fff" }, namelength: 0 };
   } else {
     trace.hoverinfo = "skip";
   }
@@ -168,6 +170,9 @@ export function sceneToTraces(scene: Scene): PlotlyFigure {
     },
     shapes,
     annotations,
+    // No active drag tool: clicking/dragging on the plot does nothing by
+    // default (zoom is driven only via the modebar zoom in/out buttons).
+    dragmode: false,
     hovermode: "closest",
     plot_bgcolor: "white",
     paper_bgcolor: "white",

@@ -27,11 +27,15 @@ export interface ColumnMeta {
   weightCandidate: boolean;
 }
 
+export type DataSource = "sample" | "upload";
+
 export interface Dataset {
   name: string;
   columns: string[];
   rows: Record<string, unknown>[];
   meta: ColumnMeta[];
+  source: DataSource;
+  edited?: boolean; // true once the user has hand-edited the rows
 }
 
 /** Per-variable ("unibar") settings. Fields apply per the column's dtype. */
@@ -159,6 +163,69 @@ export function initialUiState(): UiState {
 /** Apply a preset's field overrides (utils.set_default_settings / set_snapshot_settings). */
 export function applyPreset(state: UiState, preset: Preset): UiState {
   return { ...state, preset, ...PRESET_OVERRIDES[preset] };
+}
+
+/** Reconcile a UiState against freshly inferred column metadata after the user
+ *  hand-edits the data. Edits can drop columns, flip a column's dtype, or change
+ *  its unique values — any of which could make the current options invalid (and
+ *  /api/plot 422). This prunes/repairs the affected fields so the plot keeps
+ *  working without silently producing a wrong picture. */
+export function reconcileUiToMeta(
+  state: UiState,
+  metaByName: Record<string, ColumnMeta>,
+): UiState {
+  const has = (c: string) => !!metaByName[c];
+  const next: UiState = { ...state };
+
+  // selected vars: keep only columns that still exist
+  next.var = state.var.filter(has);
+
+  // per-variable settings: reseed when a column's dtype no longer matches the
+  // chosen display type (a numeric->categorical flip, or vice versa); otherwise
+  // just prune value orders to the surviving unique values.
+  const perUnibar: Record<string, PerUnibar> = {};
+  for (const v of next.var) {
+    const meta = metaByName[v];
+    const cur = state.perUnibar[v];
+    const allowed = meta.dtype === "numeric" ? NUMERIC_DISPLAY : CATEGORICAL_DISPLAY;
+    if (!cur || !(allowed as readonly string[]).includes(cur.displayType)) {
+      perUnibar[v] = defaultPerUnibar(meta);
+      continue;
+    }
+    const valueOrder = cur.valueOrder.filter((x) => meta.uniqueValues.includes(x));
+    perUnibar[v] = {
+      ...cur,
+      valueOrder,
+      customOrder: cur.customOrder && valueOrder.length > 0,
+    };
+  }
+  next.perUnibar = perUnibar;
+
+  // same-scale group: numeric, still-selected columns only
+  next.sameScale = state.sameScale.filter(
+    (c) => next.var.includes(c) && metaByName[c]?.dtype === "numeric",
+  );
+
+  // weights: must still be a valid weight candidate column
+  if (state.useWeights && (!has(state.weights) || !metaByName[state.weights].weightCandidate)) {
+    next.useWeights = false;
+    next.weights = "";
+  }
+
+  // highlight: variable must survive; its label list pruned to surviving values
+  if (state.highlight) {
+    if (!has(state.hiVar)) {
+      next.highlight = false;
+      next.hiVar = "";
+      next.hiValues = [];
+    } else {
+      next.hiValues = state.hiValues.filter((x) =>
+        metaByName[state.hiVar].uniqueValues.includes(x),
+      );
+    }
+  }
+
+  return next;
 }
 
 /** Ensure every selected var has a PerUnibar entry (seeded from its column meta). */

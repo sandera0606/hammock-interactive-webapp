@@ -131,20 +131,25 @@ export function Toggle({
   label,
   checked,
   onChange,
+  ariaLabel,
 }: {
-  label: string;
+  label?: string;
   checked: boolean;
   onChange: (v: boolean) => void;
+  ariaLabel?: string;
 }) {
   return (
+    // Label text comes first; the switch sits after it. The hidden <input> must
+    // directly precede .track for the `input:checked + .track` selector to work.
     <label className="toggle">
+      {label && <span className="toggle-label">{label}</span>}
       <input
         type="checkbox"
         checked={checked}
+        aria-label={ariaLabel ?? label}
         onChange={(e) => onChange(e.target.checked)}
       />
       <span className="track" />
-      <span className="toggle-label">{label}</span>
     </label>
   );
 }

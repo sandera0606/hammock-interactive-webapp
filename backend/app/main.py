@@ -23,7 +23,7 @@ from fastapi.staticfiles import StaticFiles
 
 from . import data_inference, validation
 from .capture import IncompatibleHammockVersion, capture_scene
-from .schemas import CsvUpload, ExpressionRequest, PlotRequest
+from .schemas import CsvUpload, ExpressionRequest, PlotRequest, ReinferRequest
 from .version import get_hammock_pin
 
 # version.py -> app -> backend -> repo root
@@ -128,6 +128,33 @@ def upload_data(req: CsvUpload) -> dict:
         raise HTTPException(status_code=422, detail="CSV has no rows or no columns")
     return {
         "name": req.filename or "uploaded.csv",
+        "columns": [str(c) for c in df.columns],
+        "data": data_inference.dataframe_to_records(df),
+        "meta": data_inference.column_metadata(df),
+    }
+
+
+@app.post("/api/data/reinfer")
+def reinfer_data(req: ReinferRequest) -> dict:
+    """Re-infer column dtypes + metadata after client-side edits.
+
+    The data editor sends back rows whose edited cells are plain strings. We
+    rebuild a DataFrame (preserving the editor's column order) and round-trip it
+    through pandas' CSV writer/reader so dtype inference matches a fresh upload
+    exactly — e.g. a column the user filled with whole numbers becomes numeric
+    again. Returns the same shape as /api/data/upload (minus the filename)."""
+    df = pd.DataFrame(req.data, columns=req.columns)
+    # Round-trip through CSV so read_csv's inference (the upload path) applies.
+    buf = io.StringIO()
+    df.to_csv(buf, index=False)
+    buf.seek(0)
+    try:
+        df = pd.read_csv(buf)
+    except Exception as exc:  # malformed after edits (shouldn't normally happen)
+        raise HTTPException(status_code=422, detail=f"could not parse edited data: {exc}") from exc
+    if df.empty or len(df.columns) == 0:
+        raise HTTPException(status_code=422, detail="edited data has no rows or no columns")
+    return {
         "columns": [str(c) for c in df.columns],
         "data": data_inference.dataframe_to_records(df),
         "meta": data_inference.column_metadata(df),

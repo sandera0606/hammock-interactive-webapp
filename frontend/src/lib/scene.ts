@@ -27,7 +27,7 @@ export type Hover =
       text: string;
     }
   | { kind: "unibar"; axis: string; category: string; count: number; text: string }
-  | { kind: "box"; axis: string; median?: number; q1: number; q3: number };
+  | { kind: "box"; axis: string; group?: string; median?: number; q1: number; q3: number };
 
 export interface PolygonMark {
   id: string;

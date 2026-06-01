@@ -152,6 +152,85 @@ def bucket_prims_by_unibar(fig: Any, prims: list[dict], tol_frac: float = 0.6) -
     return buckets
 
 
+def _parse_css_rgb(css: Any) -> tuple[int, int, int] | None:
+    """Parse a recorder "rgba(r,g,b,a)" string back to integer rgb (alpha dropped)."""
+    if not isinstance(css, str) or not css.startswith("rgba("):
+        return None
+    try:
+        parts = css[css.index("(") + 1 : css.index(")")].split(",")
+        return (int(float(parts[0])), int(float(parts[1])), int(float(parts[2])))
+    except (ValueError, IndexError):
+        return None
+
+
+def color_group_index(css: Any, uni_colors: list, tol: int = 3) -> int | None:
+    """Index of a captured box color within `uni.colors` (= [default, hi1, hi2…]).
+
+    The library builds `colors = [default_color] + highlight_colors` (main.py),
+    so index 0 is the non-highlighted group and index k≥1 is the k-th highlight
+    value. Matching on the rendered rgb (not draw order) is robust to the
+    `rotate_left` the box/violin code applies. Returns None if no color matches.
+    """
+    rgb = _parse_css_rgb(css)
+    if rgb is None or not uni_colors:
+        return None
+    for idx, c in enumerate(uni_colors):
+        try:
+            lr, lg, lb = (int(v * 255) for v in to_rgb(c))
+        except (ValueError, TypeError):
+            continue
+        if abs(lr - rgb[0]) <= tol and abs(lg - rgb[1]) <= tol and abs(lb - rgb[2]) <= tol:
+            return idx
+    return None
+
+
+def group_label(idx: int | None, hi_var: Any, hi_value: Any) -> str | None:
+    """Human label for a box's highlight group: 'other' for idx 0, the matched
+    highlight value for idx≥1. Returns None when the group can't be identified."""
+    if idx is None:
+        return None
+    if idx == 0:
+        return "other"
+    vals = list(hi_value) if isinstance(hi_value, (list, tuple)) else [hi_value]
+    v = vals[idx - 1] if 0 <= idx - 1 < len(vals) else None
+    if v is None:
+        return "highlighted"
+    return f"{hi_var} = {v}" if hi_var else f"highlighted ({v})"
+
+
+def split_box_groups(bucket: list[dict]) -> list[dict]:
+    """Partition one unibar's box/violin prims into one group per drawn box.
+
+    Highlighting makes `_draw_boxplot`/`_draw_violin` emit N side-by-side boxes,
+    each a `broken_barh` rect with its own median/whisker/cap lines stacked over
+    the same x-span. Each rect defines a box; a line is assigned to the rect
+    whose x-span contains the line's x-center (boxes never overlap in x). Returns
+    `[{"rect": <rect prim>, "lines": [<line prims>]}, …]`, one per box.
+    """
+    rects = [p for p in bucket if p["kind"] == "rect"]
+    if not rects:
+        return []
+    groups = [{"rect": r, "lines": []} for r in rects]
+
+    def owner(cx: float) -> dict | None:
+        inside = [
+            g for g in groups
+            if g["rect"]["x0"] - 1e-9 <= cx <= g["rect"]["x1"] + 1e-9
+        ]
+        if not inside:
+            return None
+        return min(inside, key=lambda g: abs((g["rect"]["x0"] + g["rect"]["x1"]) / 2 - cx))
+
+    for p in bucket:
+        if p["kind"] != "line" or not p.get("x"):
+            continue
+        cx = (min(p["x"]) + max(p["x"])) / 2.0
+        g = owner(cx)
+        if g is not None:
+            g["lines"].append(p)
+    return groups
+
+
 def box_stats(bucket: list[dict], invert: Callable[[float], float]) -> dict | None:
     """Derive {median, q1, q3} in real units from a box/violin's primitives.
 

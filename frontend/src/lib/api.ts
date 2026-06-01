@@ -87,6 +87,14 @@ export const getSample = (name: string) => getJson<DatasetPayload>(`/api/samples
 export const uploadCsv = (content: string, filename?: string) =>
   postJson<DatasetPayload>("/api/data/upload", { content, filename });
 
+/** Re-infer dtypes + metadata after the data editor mutates rows client-side.
+ *  Mirrors the upload response minus name/label. */
+export const reinferData = (data: Row[], columns: string[]) =>
+  postJson<{ columns: string[]; data: Row[]; meta: ColumnMeta[] }>(
+    "/api/data/reinfer",
+    { data, columns },
+  );
+
 /** Whether a highlight expression is a valid regex / numeric range. */
 export const validateExpression = (expr: string, signal?: AbortSignal) =>
   postJson<{ valid: boolean }>("/api/validate-expression", { expr }, signal);

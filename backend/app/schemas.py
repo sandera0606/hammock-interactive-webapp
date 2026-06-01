@@ -80,6 +80,19 @@ class CsvUpload(BaseModel):
     filename: str | None = None
 
 
+class ReinferRequest(BaseModel):
+    """Edited rows posted back for dtype/metadata re-inference.
+
+    The data editor mutates rows client-side (cell edits, find/replace, row &
+    column ops). Typed cells arrive as strings, so the backend round-trips the
+    rows through pandas' CSV writer+reader to re-infer column dtypes *exactly*
+    as a fresh upload would, then returns refreshed columns + metadata. Stays
+    stateless: the cleaned rows go straight back to the client."""
+
+    data: list[dict[str, Any]] = Field(..., min_length=1)
+    columns: list[str] | None = None  # preserve column order / presence
+
+
 class ExpressionRequest(BaseModel):
     """A highlight expression to validate (regex or numeric range)."""
 

@@ -39,6 +39,31 @@ def test_upload_header_only_422():
     assert "no rows" in r.json()["detail"]
 
 
+def test_reinfer_recovers_numeric_from_edited_strings():
+    # The editor sends edited cells as strings; reinfer must round-trip them back
+    # to a numeric column (matching a fresh upload) and refresh metadata.
+    rows = [{"group": "a", "weight": "10"}, {"group": "b", "weight": "20"}]
+    r = client.post("/api/data/reinfer", json={"data": rows, "columns": ["group", "weight"]})
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["columns"] == ["group", "weight"]
+    assert body["data"] == [{"group": "a", "weight": 10}, {"group": "b", "weight": 20}]
+    meta = {m["name"]: m for m in body["meta"]}
+    assert meta["weight"]["dtype"] == "numeric"
+    assert meta["weight"]["weightCandidate"] is True
+
+
+def test_reinfer_honours_column_order_and_deletion():
+    rows = [{"b": "2", "a": "x"}]  # editor preserves explicit column order
+    r = client.post("/api/data/reinfer", json={"data": rows, "columns": ["a"]})
+    assert r.status_code == 200, r.text
+    assert r.json()["columns"] == ["a"]  # dropped column 'b' excluded
+
+
+def test_reinfer_empty_data_422():
+    assert client.post("/api/data/reinfer", json={"data": []}).status_code == 422
+
+
 def test_validate_expression_true_false():
     assert client.post("/api/validate-expression", json={"expr": "x>1 and x<5"}).json() == {
         "valid": True

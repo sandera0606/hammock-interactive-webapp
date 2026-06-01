@@ -164,7 +164,7 @@
         "leftCategory": "adolescent",
         "rightAxis": "gender",
         "rightCategory": "female",
-        "text": "group=adolescent \u2192 gender=female<br>highlighted (gender=female): 62"
+        "text": "group=adolescent & gender=female<br>highlighted (gender=female): 62"
       },
       "id": "conn:0:group=adolescent>gender=female:s0",
       "type": "polygon",
@@ -198,7 +198,7 @@
         "leftCategory": "adolescent",
         "rightAxis": "gender",
         "rightCategory": "male",
-        "text": "group=adolescent \u2192 gender=male<br>other: 83"
+        "text": "group=adolescent & gender=male<br>other: 83"
       },
       "id": "conn:0:group=adolescent>gender=male:s0",
       "type": "polygon",
@@ -232,7 +232,7 @@
         "leftCategory": "adult",
         "rightAxis": "gender",
         "rightCategory": "female",
-        "text": "group=adult \u2192 gender=female<br>highlighted (gender=female): 148"
+        "text": "group=adult & gender=female<br>highlighted (gender=female): 148"
       },
       "id": "conn:0:group=adult>gender=female:s0",
       "type": "polygon",
@@ -266,7 +266,7 @@
         "leftCategory": "adult",
         "rightAxis": "gender",
         "rightCategory": "male",
-        "text": "group=adult \u2192 gender=male<br>other: 36"
+        "text": "group=adult & gender=male<br>other: 36"
       },
       "id": "conn:0:group=adult>gender=male:s0",
       "type": "polygon",
@@ -300,7 +300,7 @@
         "leftCategory": "child",
         "rightAxis": "gender",
         "rightCategory": "female",
-        "text": "group=child \u2192 gender=female<br>highlighted (gender=female): 146"
+        "text": "group=child & gender=female<br>highlighted (gender=female): 146"
       },
       "id": "conn:0:group=child>gender=female:s0",
       "type": "polygon",
@@ -334,7 +334,7 @@
         "leftCategory": "child",
         "rightAxis": "gender",
         "rightCategory": "male",
-        "text": "group=child \u2192 gender=male<br>other: 217"
+        "text": "group=child & gender=male<br>other: 217"
       },
       "id": "conn:0:group=child>gender=male:s0",
       "type": "polygon",
@@ -368,7 +368,7 @@
         "leftCategory": "female",
         "rightAxis": "comorbidities",
         "rightCategory": "0.0",
-        "text": "gender=female \u2192 comorbidities=0.0<br>highlighted (gender=female): 123"
+        "text": "gender=female & comorbidities=0.0<br>highlighted (gender=female): 123"
       },
       "id": "conn:1:gender=female>comorbidities=0.0:s0",
       "type": "polygon",
@@ -402,7 +402,7 @@
         "leftCategory": "female",
         "rightAxis": "comorbidities",
         "rightCategory": "1.0",
-        "text": "gender=female \u2192 comorbidities=1.0<br>highlighted (gender=female): 147"
+        "text": "gender=female & comorbidities=1.0<br>highlighted (gender=female): 147"
       },
       "id": "conn:1:gender=female>comorbidities=1.0:s0",
       "type": "polygon",
@@ -436,7 +436,7 @@
         "leftCategory": "female",
         "rightAxis": "comorbidities",
         "rightCategory": "2.0",
-        "text": "gender=female \u2192 comorbidities=2.0<br>highlighted (gender=female): 54"
+        "text": "gender=female & comorbidities=2.0<br>highlighted (gender=female): 54"
       },
       "id": "conn:1:gender=female>comorbidities=2.0:s0",
       "type": "polygon",
@@ -470,7 +470,7 @@
         "leftCategory": "female",
         "rightAxis": "comorbidities",
         "rightCategory": "3.0",
-        "text": "gender=female \u2192 comorbidities=3.0<br>highlighted (gender=female): 17"
+        "text": "gender=female & comorbidities=3.0<br>highlighted (gender=female): 17"
       },
       "id": "conn:1:gender=female>comorbidities=3.0:s0",
       "type": "polygon",
@@ -504,7 +504,7 @@
         "leftCategory": "female",
         "rightAxis": "comorbidities",
         "rightCategory": "4.0",
-        "text": "gender=female \u2192 comorbidities=4.0<br>highlighted (gender=female): 10"
+        "text": "gender=female & comorbidities=4.0<br>highlighted (gender=female): 10"
       },
       "id": "conn:1:gender=female>comorbidities=4.0:s0",
       "type": "polygon",
@@ -538,7 +538,7 @@
         "leftCategory": "female",
         "rightAxis": "comorbidities",
         "rightCategory": "5.0",
-        "text": "gender=female \u2192 comorbidities=5.0<br>highlighted (gender=female): 2"
+        "text": "gender=female & comorbidities=5.0<br>highlighted (gender=female): 2"
       },
       "id": "conn:1:gender=female>comorbidities=5.0:s0",
       "type": "polygon",
@@ -572,7 +572,7 @@
         "leftCategory": "female",
         "rightAxis": "comorbidities",
         "rightCategory": "6.0",
-        "text": "gender=female \u2192 comorbidities=6.0<br>highlighted (gender=female): 1"
+        "text": "gender=female & comorbidities=6.0<br>highlighted (gender=female): 1"
       },
       "id": "conn:1:gender=female>comorbidities=6.0:s0",
       "type": "polygon",
@@ -606,7 +606,7 @@
         "leftCategory": "female",
         "rightAxis": "comorbidities",
         "rightCategory": "7.0",
-        "text": "gender=female \u2192 comorbidities=7.0<br>highlighted (gender=female): 2"
+        "text": "gender=female & comorbidities=7.0<br>highlighted (gender=female): 2"
       },
       "id": "conn:1:gender=female>comorbidities=7.0:s0",
       "type": "polygon",
@@ -640,7 +640,7 @@
         "leftCategory": "male",
         "rightAxis": "comorbidities",
         "rightCategory": "0.0",
-        "text": "gender=male \u2192 comorbidities=0.0<br>other: 142"
+        "text": "gender=male & comorbidities=0.0<br>other: 142"
       },
       "id": "conn:1:gender=male>comorbidities=0.0:s0",
       "type": "polygon",
@@ -674,7 +674,7 @@
         "leftCategory": "male",
         "rightAxis": "comorbidities",
         "rightCategory": "1.0",
-        "text": "gender=male \u2192 comorbidities=1.0<br>other: 135"
+        "text": "gender=male & comorbidities=1.0<br>other: 135"
       },
       "id": "conn:1:gender=male>comorbidities=1.0:s0",
       "type": "polygon",
@@ -708,7 +708,7 @@
         "leftCategory": "male",
         "rightAxis": "comorbidities",
         "rightCategory": "2.0",
-        "text": "gender=male \u2192 comorbidities=2.0<br>other: 40"
+        "text": "gender=male & comorbidities=2.0<br>other: 40"
       },
       "id": "conn:1:gender=male>comorbidities=2.0:s0",
       "type": "polygon",
@@ -742,7 +742,7 @@
         "leftCategory": "male",
         "rightAxis": "comorbidities",
         "rightCategory": "3.0",
-        "text": "gender=male \u2192 comorbidities=3.0<br>other: 15"
+        "text": "gender=male & comorbidities=3.0<br>other: 15"
       },
       "id": "conn:1:gender=male>comorbidities=3.0:s0",
       "type": "polygon",
@@ -776,7 +776,7 @@
         "leftCategory": "male",
         "rightAxis": "comorbidities",
         "rightCategory": "4.0",
-        "text": "gender=male \u2192 comorbidities=4.0<br>other: 4"
+        "text": "gender=male & comorbidities=4.0<br>other: 4"
       },
       "id": "conn:1:gender=male>comorbidities=4.0:s0",
       "type": "polygon",

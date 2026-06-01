@@ -103,6 +103,13 @@ body,
   height: 100%;
   margin: 0;
 }
+/* The .app shell owns all layout and is sized to the viewport; the page itself
+   never scrolls (only the control rail scrolls internally). Locking overflow
+   here prevents a stray page scrollbar from sub-pixel/100vh rounding. */
+html,
+body {
+  overflow: hidden;
+}
 
 body {
   font-family: var(--font-sans);
@@ -124,7 +131,7 @@ button {
 .app {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -150,20 +157,8 @@ button {
   letter-spacing: -0.02em;
   margin: 0;
 }
-.brand .tag {
-  font-size: 0.64rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  font-weight: 600;
-}
 .topbar .spacer {
   margin-left: auto;
-}
-.topbar .pin {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  color: var(--ink-faint);
 }
 
 /* theme toggle */
@@ -187,10 +182,63 @@ button {
   color: var(--ink);
 }
 
+/* GitHub / external link in the topbar — shares the theme-toggle's icon-button look */
+.topbar-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-soft);
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.14s ease, color 0.14s ease, border-color 0.14s ease;
+}
+.topbar-link:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.topbar-link:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
 .body {
   display: flex;
   flex: 1 1 auto;
   min-height: 0;
+}
+/* While dragging the rail handle, suppress text selection + force the cursor. */
+.body.resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+
+/* ----- Rail resize handle ------------------------------------------------- */
+.rail-resizer {
+  flex: 0 0 auto;
+  width: 6px;
+  margin: 0 -3px; /* widen the hit target without shifting layout */
+  position: relative;
+  z-index: 2;
+  cursor: col-resize;
+  touch-action: none;
+}
+.rail-resizer::after {
+  content: "";
+  position: absolute;
+  inset: 0 2px;
+  border-radius: 2px;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+.rail-resizer:hover::after,
+.body.resizing .rail-resizer::after {
+  background: var(--accent);
 }
 
 /* ----- Control rail ------------------------------------------------------- */
@@ -225,12 +273,72 @@ button {
 .plot-card {
   position: relative;
   flex: 1 1 auto;
-  /* plot stays on white in both themes so the captured colours read true */
-  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  /* card chrome is themed; the plot body below stays white */
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow);
   overflow: hidden;
+}
+
+/* ----- Plot toolbar (card header: plot identity + redraw controls) -------- */
+.plot-toolbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 48px;
+  padding: 8px 12px 8px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.plot-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0; /* allow the title to ellipsize rather than push the actions */
+}
+.plot-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 0 0 auto;
+}
+.plot-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.plot-title-meta {
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+.plot-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+}
+
+/* ----- Plot body (white surface hosting plotly + overlays) --------------- */
+.plot-body {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  /* plot stays on white in both themes so the captured colours read true */
+  background: #ffffff;
 }
 .plot-host {
   position: absolute;
@@ -239,6 +347,60 @@ button {
 .plot-host.dim {
   opacity: 0.5;
   transition: opacity 0.18s ease;
+}
+
+/* ----- Plotly modebar — restyled to integrate with the white plot --------
+   The bar floats on the always-white plot body, so it uses fixed plot-context
+   neutrals (not the themed app surface) so it reads the same in both themes.
+   It is styled as ONE pill; the two button groups are separated by a hairline
+   divider rather than split into detached chips. Icon dimensions are left to
+   plotly so its non-square built-in zoom glyphs keep their aspect ratio. */
+.plot-body .modebar {
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #e7eaef;
+  border-radius: var(--r-sm);
+  box-shadow: 0 1px 2px rgba(20, 23, 28, 0.06), 0 6px 18px -10px rgba(20, 23, 28, 0.22);
+}
+.plot-body .modebar-group {
+  display: inline-flex !important;
+  align-items: center;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: none !important;
+}
+/* hairline divider between [zoom] and [fullscreen + download] */
+.plot-body .modebar-group + .modebar-group {
+  margin-left: 5px !important;
+  padding-left: 5px !important;
+  border-left: 1px solid #e7eaef;
+}
+.plot-body .modebar-btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 28px;
+  border-radius: var(--r-xs);
+  transition: background 0.13s ease;
+}
+.plot-body .modebar-btn + .modebar-btn {
+  margin-left: 1px;
+}
+.plot-body .modebar-btn:hover {
+  background: #f1ecf9; /* --accent-soft (light) */
+}
+.plot-body .modebar-btn path {
+  fill: #8a909b !important;
+  transition: fill 0.13s ease;
+}
+.plot-body .modebar-btn:hover path,
+.plot-body .modebar-btn.active path {
+  fill: #7d5fbe !important; /* --accent (resolves on the white plot in both themes) */
 }
 
 .overlay {
@@ -271,23 +433,6 @@ button {
   color: var(--danger);
 }
 
-.updating {
-  position: absolute;
-  top: 14px;
-  right: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--accent);
-  background: var(--accent-soft);
-  border: 1px solid var(--accent-line);
-  padding: 5px 11px;
-  border-radius: 999px;
-  z-index: 3;
-}
 .spinner {
   width: 11px;
   height: 11px;
@@ -300,6 +445,110 @@ button {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* ----- Data source card (segregated "step 1" zone) ----------------------- */
+.data-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+  padding: 14px 14px 16px;
+  margin-bottom: 22px;
+  position: relative;
+}
+/* a soft accent rail on the left edge signals "this is the input stage" */
+.data-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 14px;
+  bottom: 14px;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--accent);
+  opacity: 0.85;
+}
+.data-card-head {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 14px;
+  padding-left: 4px;
+}
+/* once a dataset is loaded the header doubles as a collapse toggle */
+.data-card-head.clickable {
+  cursor: pointer;
+}
+.data-card-head .chev {
+  margin-left: auto;
+  color: var(--ink-faint);
+  transition: transform 0.18s ease;
+  font-size: 0.74rem;
+}
+.data-card-head.clickable:hover .chev {
+  color: var(--accent);
+}
+.data-card-head[aria-expanded="true"] .chev {
+  transform: rotate(90deg);
+}
+/* no body below the header when collapsed — drop the gap it was reserving */
+.data-card.collapsed .data-card-head {
+  margin-bottom: 0;
+}
+.data-card.collapsed {
+  padding-bottom: 14px;
+}
+.data-card-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.data-card-title .label {
+  font-weight: 700;
+  font-size: 0.86rem;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.data-card-title .sub {
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+}
+
+/* shared circular step badge for the two rail zones */
+.step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* "step 2" header introducing the configuration controls */
+.rail-config {
+  margin-top: 4px;
+}
+.config-head {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 4px 6px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+.config-head .label {
+  font-weight: 700;
+  font-size: 0.86rem;
+  letter-spacing: -0.01em;
+  color: var(--ink);
 }
 
 /* ----- Section (minimal accordion) --------------------------------------- */
@@ -329,6 +578,10 @@ button {
   font-size: 0.82rem;
   letter-spacing: 0.01em;
 }
+.section-head .section-switch {
+  display: inline-flex;
+  align-items: center;
+}
 .section-head .count {
   font-family: var(--font-mono);
   font-size: 0.64rem;
@@ -357,7 +610,7 @@ button {
 .field:last-child {
   margin-bottom: 0;
 }
-.field > label,
+.field > label:not(.toggle),
 .field-label {
   display: block;
   font-size: 0.74rem;
@@ -519,9 +772,14 @@ input[type="range"]:disabled {
   gap: 10px;
   cursor: pointer;
   user-select: none;
+  position: relative; /* contain the hidden input so focusing it can't scroll the rail */
 }
 .toggle input {
   position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
   opacity: 0;
   pointer-events: none;
 }
@@ -631,6 +889,24 @@ input[type="range"]:disabled {
   border-color: transparent;
   color: var(--accent);
 }
+/* accent-themed secondary action (e.g. "Replace" = the upload path) — louder
+   than ghost/neutral, fills solid on hover */
+.btn.accent {
+  background: var(--accent-soft);
+  border-color: var(--accent-line);
+  color: var(--accent);
+}
+.btn.accent:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+.btn.accent:disabled {
+  background: var(--surface-2);
+  border-color: var(--line);
+  color: var(--ink-faint);
+  cursor: default;
+}
 .btn.block {
   width: 100%;
 }
@@ -659,7 +935,7 @@ input[type="range"]:disabled {
   padding: 16px;
   border: 1.5px dashed var(--line-strong);
   border-radius: var(--r);
-  background: var(--surface);
+  background: var(--surface-2);
   text-align: center;
   cursor: pointer;
   transition: border-color 0.14s ease, background 0.14s ease;
@@ -784,6 +1060,84 @@ table.preview td {
   cursor: not-allowed;
 }
 
+/* wide-dataset toolbar: collapse the column grid + filter by name */
+.chip-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.chip-collapse {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  padding: 4px 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.chip-collapse .chev {
+  color: var(--ink-faint);
+  font-size: 0.7rem;
+  transition: transform 0.18s ease;
+}
+.chip-collapse[aria-expanded="true"] .chev {
+  transform: rotate(90deg);
+}
+.chip-bar-count {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+.chip-search {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+.chip-search input {
+  width: 100%;
+  padding: 5px 26px 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.78rem;
+}
+.chip-search input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.chip-search-clear {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  color: var(--ink-faint);
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+.chip-search-clear:hover {
+  color: var(--ink);
+  background: var(--surface-2);
+}
+
 /* selected axes — ordered list */
 .axes {
   display: flex;
@@ -796,12 +1150,83 @@ table.preview td {
   border-radius: var(--r-sm);
   background: var(--surface);
   overflow: hidden;
+  transition: opacity 0.12s ease, box-shadow 0.12s ease;
 }
 .axis-row {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 8px 10px;
+}
+.axis-row--bordered {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+/* drag-to-reorder ---------------------------------------------------------- */
+.grip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 18px;
+  height: 22px;
+  margin-left: -3px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--ink-faint);
+  cursor: grab;
+  border-radius: var(--r-xs);
+  touch-action: none;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.grip:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.grip:active {
+  cursor: grabbing;
+}
+.grip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  color: var(--ink);
+}
+.axis-item.dragging,
+.axis-row.dragging {
+  opacity: 0.45;
+}
+/* Insertion line marking where the dragged row will land on drop. Anchored to
+   the target's inner edge (the rows clip overflow, so a gap-positioned line
+   would be cut off) — a line above the row means "lands here", below means
+   "lands after". */
+.axis-item.drop-before,
+.axis-item.drop-after,
+.axis-row.drop-before,
+.axis-row.drop-after {
+  position: relative;
+}
+.axis-item.drop-before::after,
+.axis-item.drop-after::after,
+.axis-row.drop-before::after,
+.axis-row.drop-after::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  background: var(--accent);
+  z-index: 4;
+  pointer-events: none;
+}
+.axis-item.drop-before::after,
+.axis-row.drop-before::after {
+  top: 0;
+}
+.axis-item.drop-after::after,
+.axis-row.drop-after::after {
+  bottom: 0;
 }
 .axis-row .ord {
   font-family: var(--font-mono);
@@ -826,6 +1251,58 @@ table.preview td {
   background: var(--surface-2);
   color: var(--ink-soft);
   border: 1px solid var(--line);
+}
+
+/* Inline display-type picker: a native <select> dressed as the pill it
+   replaced, with a CSS chevron (themeable via currentColor on the wrapper). */
+.dt-pill {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  color: var(--ink-faint);
+}
+.dt-pill::after {
+  content: "";
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  border-right: 1.4px solid currentColor;
+  border-bottom: 1.4px solid currentColor;
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+  transition: color 0.12s ease;
+}
+.dt-pill:hover {
+  color: var(--ink);
+}
+.dt-select {
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  padding: 2px 20px 2px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  line-height: 1.3;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.dt-select:hover {
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+.dt-select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  color: var(--ink);
+}
+.dt-select option {
+  font-family: var(--font-sans);
+  color: var(--ink);
 }
 .iconbtn {
   border: none;
@@ -923,4 +1400,532 @@ table.preview td {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* ----- Rail readability bump ---------------------------------------------
+   The control panel's text ran small. These overrides enlarge every rail
+   text class ~14% (base value × 1.14), preserving the design's relative type
+   hierarchy. Scoped to .rail so the plot toolbar, overlays, and warnings
+   strip are deliberately left unchanged. Mirrors the base rules above. */
+.rail .data-card-title .label { font-size: 0.95rem; }
+.rail .data-card-title .sub { font-size: 0.79rem; }
+.rail .step { font-size: 0.8rem; }
+.rail .config-head .label { font-size: 0.95rem; }
+.rail .section-head .label { font-size: 0.92rem; }
+.rail .section-head .count { font-size: 0.72rem; }
+.rail .section-head .chev { font-size: 0.78rem; }
+.rail .field > label:not(.toggle),
+.rail .field-label { font-size: 0.83rem; }
+.rail .field .hint { font-size: 0.79rem; }
+.rail input[type="text"],
+.rail input[type="number"],
+.rail select,
+.rail textarea { font-size: 0.94rem; }
+.rail textarea { font-size: 0.86rem; }
+.rail .slider-head .val { font-size: 0.85rem; }
+.rail .color-field .hex { font-size: 0.82rem; }
+.rail .toggle .toggle-label { font-size: 0.92rem; }
+.rail .segmented button { font-size: 0.9rem; }
+.rail .btn { font-size: 0.93rem; }
+.rail .btn.sm { font-size: 0.86rem; }
+.rail .dropzone .big { font-size: 0.95rem; }
+.rail .dropzone .small { font-size: 0.8rem; }
+.rail .dataset-tag { font-size: 0.87rem; }
+.rail .dataset-tag .rows { font-size: 0.79rem; }
+.rail table.preview { font-size: 0.82rem; }
+.rail table.preview td { font-size: 0.77rem; }
+.rail .chip { font-size: 0.87rem; }
+.rail .chip .glyph { font-size: 0.67rem; }
+.rail .axis-row .ord { font-size: 0.76rem; }
+.rail .axis-row .nm { font-size: 0.93rem; }
+.rail .axis-row .badge { font-size: 0.69rem; }
+.rail .axis-row .dt-select { font-size: 0.69rem; }
+.rail .iconbtn { font-size: 0.9rem; }
+.rail .hi-colors .cap { font-size: 0.74rem; }
+.rail .inline-warn,
+.rail .inline-ok { font-size: 0.8rem; }
+.rail .empty-note { font-size: 0.85rem; }
+
+/* ============================================================================
+   Data source — redesigned picker + active-dataset card + data editor modal
+   ========================================================================== */
+
+/* grouped source pickers (samples / your file) */
+.ds-pickers {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ds-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.ds-group-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.ds-group-label svg {
+  color: var(--ink-faint);
+}
+/* the "your own data" path carries the accent identity (matches the Uploaded
+   badge + the Replace button) */
+.ds-group-label.upload {
+  color: var(--accent);
+}
+.ds-group-label.upload svg {
+  color: var(--accent);
+}
+/* either/or divider between the two data sources */
+.ds-or {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.ds-or::before,
+.ds-or::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+.dropzone .dz-icon {
+  color: var(--ink-faint);
+  margin-bottom: 1px;
+}
+.dropzone:hover .dz-icon,
+.dropzone.over .dz-icon {
+  color: var(--accent);
+}
+
+/* active-dataset card: the prominent "this is loaded" status */
+.active-dataset {
+  margin-top: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface-2);
+  padding: 11px 12px 12px;
+  animation: ds-pop 0.42s ease;
+}
+@keyframes ds-pop {
+  0% {
+    box-shadow: 0 0 0 0 var(--accent-soft);
+    border-color: var(--accent);
+  }
+  100% {
+    box-shadow: 0 0 0 6px transparent;
+    border-color: var(--line);
+  }
+}
+.ad-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.ad-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 999px;
+  line-height: 1.5;
+}
+.ad-badge.sample {
+  color: var(--numeric);
+  background: var(--numeric-soft);
+}
+.ad-badge.upload {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.ad-badge.edited {
+  color: var(--categorical);
+  background: var(--categorical-soft);
+}
+.ad-name {
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.ad-meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.71rem;
+  color: var(--ink-soft);
+}
+.ad-dot {
+  color: var(--ink-faint);
+}
+/* action row: Edit data (primary action) + Replace (quiet secondary) */
+.ad-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 11px;
+}
+.ad-actions .btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+/* dropping a CSV anywhere on the card replaces the dataset */
+.active-dataset.over {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.preview-more {
+  padding: 7px 10px;
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+.linklike {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 600;
+}
+.linklike:hover {
+  text-decoration: underline;
+}
+.active-dataset .preview-wrap {
+  margin-top: 11px;
+}
+
+/* ----- Modal shell -------------------------------------------------------- */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(20, 23, 28, 0.42);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  animation: fade-in 0.16s ease;
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ----- Data editor -------------------------------------------------------- */
+.data-editor {
+  display: flex;
+  flex-direction: column;
+  width: min(1100px, 96vw);
+  height: min(820px, 92vh);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-pop);
+  overflow: hidden;
+  animation: editor-rise 0.18s ease;
+}
+@keyframes editor-rise {
+  from {
+    transform: translateY(8px) scale(0.99);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+.de-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.de-title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.de-title-main {
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+}
+.de-title-sub {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--ink-faint);
+}
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  background: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.icon-btn:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+/* toolbar: find & replace */
+.de-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-2);
+}
+.fr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.fr-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+.fr-arrow {
+  color: var(--ink-faint);
+  font-size: 0.9rem;
+}
+.de-toolbar select,
+.de-toolbar input {
+  width: auto;
+  padding: 6px 9px;
+  font-size: 0.78rem;
+}
+.de-toolbar select {
+  padding-right: 26px;
+  min-width: 120px;
+  max-width: 200px;
+}
+.de-toolbar input {
+  width: 132px;
+}
+.fr-status {
+  font-size: 0.73rem;
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+}
+.fr-opts {
+  display: flex;
+  gap: 16px;
+}
+.mini-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  user-select: none;
+}
+.mini-check input {
+  width: auto;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* the grid */
+.de-grid-wrap {
+  flex: 1 1 auto;
+  overflow: auto;
+  position: relative;
+}
+table.de-grid {
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.76rem;
+  width: max-content;
+  min-width: 100%;
+}
+.de-grid thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line-strong);
+  border-right: 1px solid var(--line);
+  padding: 8px 10px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.de-grid thead th:hover .de-coldel {
+  opacity: 1;
+}
+.de-colname {
+  display: inline-block;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+.de-coldel {
+  opacity: 0;
+  margin-left: 8px;
+  border: none;
+  background: none;
+  color: var(--ink-faint);
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1;
+  transition: color 0.12s ease, opacity 0.12s ease;
+}
+.de-coldel:hover {
+  color: var(--danger);
+}
+.de-coldel:disabled {
+  display: none;
+}
+.de-grid tbody td {
+  border-bottom: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  padding: 0;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  color: var(--ink-soft);
+  cursor: text;
+}
+.de-grid tbody td > span {
+  display: block;
+  padding: 6px 10px;
+  min-width: 48px;
+  min-height: 28px;
+}
+.de-grid tbody td:hover {
+  background: var(--accent-soft);
+}
+.de-grid tbody td.editing {
+  background: var(--surface);
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.cell-null {
+  color: var(--ink-faint);
+}
+.de-cell-input {
+  width: 100% !important;
+  min-width: 90px;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 6px 10px !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.76rem !important;
+  background: var(--surface) !important;
+  box-shadow: none !important;
+}
+
+/* row-number / delete gutter */
+.de-rownum {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--surface-2);
+  border-right: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--line);
+  padding: 0 8px;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--ink-faint);
+  width: 1%;
+  white-space: nowrap;
+}
+thead .de-rownum {
+  z-index: 3;
+}
+.de-rownum .de-rowdel {
+  display: none;
+  border: none;
+  background: none;
+  color: var(--ink-faint);
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+.de-rownum:hover .de-rn {
+  display: none;
+}
+.de-rownum:hover .de-rowdel {
+  display: inline;
+  color: var(--danger);
+}
+.de-cap-note {
+  position: sticky;
+  left: 0;
+  padding: 10px 14px;
+  font-size: 0.73rem;
+  color: var(--warn-ink);
+  background: var(--warn-soft);
+  border-top: 1px solid var(--warn-line);
+}
+
+/* footer */
+.de-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-top: 1px solid var(--line);
+  gap: 12px;
+}
+.de-foot-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.de-foot-stat {
+  font-family: var(--font-mono);
+  font-size: 0.73rem;
+  color: var(--ink-faint);
+}
+.de-unsaved {
+  color: var(--categorical);
+  font-weight: 600;
+}
+.de-foot-right {
+  display: flex;
+  gap: 8px;
 }

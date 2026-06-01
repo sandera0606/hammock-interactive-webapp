@@ -23,9 +23,44 @@ interface RailProps {
   setPreset: (p: Preset) => void;
 }
 
+// A valid, non-empty highlight expression seeded from a variable's first value:
+// `x == <n>` is a numeric-range expr for numeric columns; the literal value is a
+// regex for categorical ones. Empty hi_value crashes the render, so we never
+// leave expression mode blank.
+function defaultHiExpr(meta: ColumnMeta | undefined): string {
+  const first = meta?.uniqueValues[0];
+  if (first === undefined) return "";
+  return meta?.dtype === "numeric" ? `x == ${first}` : first;
+}
+
 export default function OptionsRail(props: RailProps) {
   const { ui, meta, patch, setVar, setPreset } = props;
   const metaByName = Object.fromEntries(meta.map((m) => [m.name, m]));
+
+  // Turning highlighting on must leave the plot with something to highlight,
+  // otherwise the library is asked to highlight nothing and the render throws.
+  // Seed a default variable (a selected axis, else any column) and, in labels
+  // mode, its first value — only filling blanks the user hasn't set.
+  const enableHighlight = (on: boolean) => {
+    if (!on) {
+      patch({ highlight: false });
+      return;
+    }
+    const next: Partial<UiState> = { highlight: true };
+    const hiVar =
+      ui.hiVar ||
+      ui.var.find((v) => (metaByName[v]?.uniqueValues.length ?? 0) > 0) ||
+      meta.find((m) => m.uniqueValues.length > 0)?.name ||
+      "";
+    if (!ui.hiVar) next.hiVar = hiVar;
+    if (ui.hiType === "labels" && ui.hiValues.length === 0) {
+      const first = metaByName[hiVar]?.uniqueValues[0];
+      if (first !== undefined) next.hiValues = [first];
+    } else if (ui.hiType === "expression" && !ui.hiExpression) {
+      next.hiExpression = defaultHiExpr(metaByName[hiVar]);
+    }
+    patch(next);
+  };
 
   return (
     <>
@@ -56,11 +91,17 @@ export default function OptionsRail(props: RailProps) {
         <AppearanceSection {...props} />
       </Section>
 
-      <Section label="Highlighting" count={ui.highlight ? "on" : undefined}>
+      <Section
+        label="Highlighting"
+        toggle={{ checked: ui.highlight, onChange: enableHighlight }}
+      >
         <HighlightingSection {...props} metaByName={metaByName} />
       </Section>
 
-      <Section label="Weights" count={ui.useWeights ? "on" : undefined}>
+      <Section
+        label="Weights"
+        toggle={{ checked: ui.useWeights, onChange: (v) => patch({ useWeights: v }) }}
+      >
         <WeightsSection {...props} />
       </Section>
 
@@ -188,9 +229,9 @@ function HighlightingSection({
 
   if (!ui.highlight) {
     return (
-      <Field>
-        <Toggle label="Enable highlighting" checked={false} onChange={(v) => patch({ highlight: v })} />
-      </Field>
+      <div className="empty-note">
+        Use the switch above to highlight rows by a variable's values.
+      </div>
     );
   }
 
@@ -199,11 +240,23 @@ function HighlightingSection({
 
   return (
     <>
-      <Field>
-        <Toggle label="Enable highlighting" checked onChange={(v) => patch({ highlight: v })} />
-      </Field>
       <Field label="Variable to highlight">
-        <select value={ui.hiVar} onChange={(e) => patch({ hiVar: e.target.value, hiValues: [] })}>
+        <select
+          value={ui.hiVar}
+          onChange={(e) => {
+            // Seed the new variable's first value (labels) and a matching
+            // expression so the plot always has something to highlight — an
+            // empty hi_value crashes the render.
+            const v = e.target.value;
+            const m = metaByName[v];
+            const first = m?.uniqueValues[0];
+            patch({
+              hiVar: v,
+              hiValues: first !== undefined ? [first] : [],
+              hiExpression: defaultHiExpr(m),
+            });
+          }}
+        >
           <option value="">— select —</option>
           {Object.keys(metaByName).map((c) => (
             <option key={c} value={c}>
@@ -216,7 +269,18 @@ function HighlightingSection({
         <Field label="Type">
           <Segmented
             value={ui.hiType}
-            onChange={(v) => patch({ hiType: v })}
+            onChange={(v) => {
+              // Seed whichever mode we're switching into so it's never blank.
+              const p: Partial<UiState> = { hiType: v };
+              const m = metaByName[ui.hiVar];
+              if (v === "expression" && !ui.hiExpression) {
+                p.hiExpression = defaultHiExpr(m);
+              } else if (v === "labels" && ui.hiValues.length === 0) {
+                const first = m?.uniqueValues[0];
+                if (first !== undefined) p.hiValues = [first];
+              }
+              patch(p);
+            }}
             options={[
               { value: "labels", label: "Labels" },
               { value: "expression", label: "Expr" },
@@ -305,30 +369,29 @@ function WeightsSection({ ui, meta, patch }: RailProps) {
   const candidates = meta
     .filter((m) => m.weightCandidate && !ui.var.includes(m.name))
     .map((m) => m.name);
-  return (
-    <>
-      <Field>
-        <Toggle label="Use weights" checked={ui.useWeights} onChange={(v) => patch({ useWeights: v })} />
-      </Field>
-      {ui.useWeights &&
-        (candidates.length === 0 ? (
-          <div className="empty-note">
-            No valid weight variable. A weight must be numeric with no missing or
-            non-positive values, and not already an axis.
-          </div>
-        ) : (
-          <Field label="Weight variable" hint="Acts as a per-row weight.">
-            <select value={ui.weights} onChange={(e) => patch({ weights: e.target.value })}>
-              <option value="">— select —</option>
-              {candidates.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </Field>
+  if (!ui.useWeights) {
+    return (
+      <div className="empty-note">
+        Use the switch above to weight each row by a numeric variable.
+      </div>
+    );
+  }
+  return candidates.length === 0 ? (
+    <div className="empty-note">
+      No valid weight variable. A weight must be numeric with no missing or
+      non-positive values, and not already an axis.
+    </div>
+  ) : (
+    <Field label="Weight variable" hint="Acts as a per-row weight.">
+      <select value={ui.weights} onChange={(e) => patch({ weights: e.target.value })}>
+        <option value="">— select —</option>
+        {candidates.map((c) => (
+          <option key={c} value={c}>
+            {c}
+          </option>
         ))}
-    </>
+      </select>
+    </Field>
   );
 }
 

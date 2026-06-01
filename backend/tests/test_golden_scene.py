@@ -166,3 +166,25 @@ def test_smoke_box_violin() -> None:
     assert box_hovers, "≥1 box/violin hover"
     for h in box_hovers:
         assert h["q1"] <= h["median"] <= h["q3"], f"quantiles ordered: {h}"
+
+
+def test_highlight_box_violin_per_group_hover() -> None:
+    """Highlighting splits each box/violin axis into one box per color group;
+    every box must carry its own labeled, distinct hover (not just the widest)."""
+    scene = _capture(CONFIGS["penguins_expr_highlight"])
+    by_axis: dict[str, set] = {}
+    for m in scene["marks"]:
+        h = m.get("hover")
+        if not h or h.get("kind") != "box":
+            continue
+        assert h.get("group"), f"highlighted box hover lacks a group label: {h}"
+        assert h["q1"] <= h["median"] <= h["q3"], f"quantiles ordered: {h}"
+        by_axis.setdefault(h["axis"], set()).add((h.get("group"), h["median"], h["q1"], h["q3"]))
+
+    # Each highlighted box/violin axis exposes ≥2 groups with distinct stats,
+    # and both the "other" and the highlighted group are labeled.
+    for axis, groups in by_axis.items():
+        labels = {g[0] for g in groups}
+        assert len(groups) >= 2, f"{axis}: expected ≥2 per-group box hovers, got {groups}"
+        assert "other" in labels, f"{axis}: missing 'other' group, got {labels}"
+        assert any(l != "other" for l in labels), f"{axis}: missing highlighted group, got {labels}"
